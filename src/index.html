@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" ng-app="StreamEst">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <title>StreamEst 2.0</title>
+     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <script>document.write('<base href="' + document.location + '" />');</script>
+    <!-- build:css styles/vendor.min.css -->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="../bower_components/mobile-angular-ui/dist/css/mobile-angular-ui-hover.css" />
+    <link rel="stylesheet" href="../bower_components/mobile-angular-ui/dist/css/mobile-angular-ui-base.css" />
+    <link rel="stylesheet" href="../bower_components/mobile-angular-ui/dist/css/mobile-angular-ui-desktop.css" />
+    <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="../bower_components/bootstrap-daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" href="../bower_components/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="../bower_components/font-awesome/css/font-awesome.css"> 
+    <link rel="stylesheet" href="../bower_components/leaflet.locatecontrol/dist/L.Control.Locate.css" />
+    <link rel="stylesheet" href="../bower_components/leaflet.zoomhome/dist/leaflet.zoomhome.css" />
+    <link rel="stylesheet" href="../bower_components/leaflet-draw/dist/leaflet.draw.css" />
+    <link rel="stylesheet" href="../bower_components/Leaflet.Elevation/dist/Leaflet.Elevation-0.0.3.css" />
+    <link rel="stylesheet" href="../bower_components/angularjs-toaster/toaster.css" />
+    <link rel="stylesheet" href="../bower_components/angularjs-slider/dist/rzslider.css" />
+    <link rel="stylesheet" href="../bower_components/nvd3/build/nv.d3.css" />
+    <link rel="stylesheet" href="../bower_components/wim_angular/dist/css/wimLegend.css" />
+    <!-- endbuild -->
+    <!-- build:css styles/custom.min.css -->
+    <link rel="stylesheet" href="css/wim.css" />
+    <link rel="stylesheet" href="css/main.css" />
+    <!-- endbower -->
+    <!-- endbuild -->
+    <!-- build:js scripts/vendor.min.js -->
+    <!-- bower:js -->
+    <script src="../bower_components/angular/angular.js"></script>
+    <script src="../bower_components/angulartics/dist/angulartics.min.js"></script>
+    <script src="../bower_components/angulartics-google-analytics/dist/angulartics-google-analytics.min.js"></script>
+    <script src="../bower_components/angular-animate/angular-animate.js"></script>
+    <script src="../bower_components/angular-bootstrap/ui-bootstrap.js"></script>
+    <script src="../bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="../bower_components/jquery/dist/jquery.js"></script>
+    <script src="../bower_components/moment/moment.js"></script>
+    <script src="../bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <script src="../bower_components/angular-daterangepicker/js/angular-daterangepicker.js"></script>
+    <script src="../bower_components/angularjs-toaster/toaster.js"></script>
+    <script src="../bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
+    <script src="../bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="../bower_components/mobile-angular-ui/dist/js/mobile-angular-ui.js"></script>   
+    <script src="../bower_components/mobileangularui-checkbox/mobileangularui-checkbox.js"></script>
+    <script src="../bower_components/ng-file-upload/ng-file-upload.js"></script>
+    <script src="../bower_components/leaflet/dist/leaflet.js"></script>
+    <script src="../bower_components/esri-leaflet/dist/esri-leaflet.js"></script>  
+    <script src="../bower_components/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
+    <script src="../bower_components/leaflet-draw/dist/leaflet.draw.js"></script>
+    <script src="../bower_components/leaflet.zoomhome/dist/leaflet.zoomhome.min.js"></script>
+    <script src="../bower_components/Leaflet.Elevation/dist/Leaflet.Elevation-0.0.3.min.js"></script>
+    <script src="../bower_components/GreinerHormann/dist/greiner-hormann.leaflet.js"></script>
+    <script src="../bower_components/d3/d3.js"></script>
+    <script src="../bower_components/nvd3/build/nv.d3.js"></script>
+    <script src="../bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
+    <script src="../bower_components/angularjs-slider/dist/rzslider.min.js"></script>
+    <script src="../bower_components/wim_angular/dist/Directives/directives.module.js"></script>
+    <script src="../bower_components/wim_angular/dist/Extensions/String.js"></script>
+    <script src="../bower_components/wim_angular/dist/Extensions/SurveyRound.js"></script>
+    <script src="../bower_components/wim_angular/dist/Events/Delegate.js"></script>
+    <script src="../bower_components/wim_angular/dist/Events/EventArgs.js"></script>
+    <script src="../bower_components/wim_angular/dist/Events/EventHandler.js"></script>
+    <script src="../bower_components/wim_angular/dist/Models/Point.js"></script>
+    <script src="../bower_components/wim_angular/dist/Models/Parameter.js"></script>
+    <script src="../bower_components/wim_angular/dist/Services/service.module.js"></script>
+    <script src="../bower_components/wim_angular/dist/Services/Helpers/RequestInfo.js"></script>
+    <script src="../bower_components/wim_angular/dist/Services/HTTPServiceBase.js"></script>
+    <script src="../bower_components/wim_angular/dist/Services/SearchAPIService.js"></script>
+    <script src="../bower_components/wim_angular/dist/Services/Helpers/RequestTransform.js"></script>
+    <script src="../bower_components/wim_angular/dist/Events/EventManager.js"></script>
+    <script src="../bower_components/wim_angular/dist/Directives/wimLegend.js"></script>
+
+    <!-- endbuild -->
+    
+    <!-- build:js scripts/custom.min.js -->
+    <script src="Config.js"></script>
+    <script src="Citations.js"></script>
+    <!-- Models ref-->
+    <script src="Models/StudyArea.js"></script>
+    <script src="Models/WatershedEDL.js"></script>  
+    <script src="Models/Scenario.js"></script>
+    <script src="Models/Parameter.js"></script>
+    <script src="Models/ReferenceGage.js"></script>
+    <script src="Models/Timeseries.js"></script>
+    <!-- Services ref-->
+    <script src="Services/service.module.js"></script>
+    <script src="Services/StudyAreaService.js"></script>
+    <script src="Services/ExplorationService.js"></script>
+    <script src="Services/ModalService.js"></script>
+    <!-- Controllers ref-->
+    <script src="Controllers/controller.module.js"></script>
+    <script src="Controllers/MapController.js"></script>
+    <script src="Controllers/SidebarController.js"></script>
+    <script src="Controllers/NavbarController.js"></script>
+    <script src="Controllers/ReportController.js"></script>
+    <script src="Controllers/AboutController.js"></script>
+    <script src="Controllers/SelectStudyAreaController.js"></script>
+    <!-- Directives ref-->
+    <!-- endbower -->
+    <!-- endbuild -->
+    <script src="appConfig.js"></script>
+    <script>
+      //(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      //(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      //m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      //})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      //ga('create', 'UA-61219868-6', 'auto');
+    </script>
+</head>
+<body>
+    <div ui-view="navbar" class="navbar-app navbar-absolute-top"></div>
+    <div ui-view="sidebar" class="sidebar sidebar-left"></div>  
+    <div ui-view="map" class="app app-body"></div>   
+    <toaster-container toaster-options="{'position-class': 'toast-bottom-right'}"></toaster-container>    
+</body>
+</html>

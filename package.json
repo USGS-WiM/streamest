@@ -1,0 +1,29 @@
+{
+  "name": "StreamEst",
+  "version": "2.0.0",
+  "homepage": "https://github.com/USGS-WiM/StreamEst",
+  "repository": "https://github.com/USGS-WiM/StreamEst",
+  "authors": [
+    "Jeremy Newson <jknewson@usgs.gov>",
+    "Martyn Smith <marsmith@usgs.gov>"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "del": "^1.1.1",
+    "gulp": "^3.6.2",
+    "gulp-autoprefixer": "0.0.7",
+    "gulp-bump": "^0.3.0",
+    "gulp-connect": "^2.0.5",
+    "gulp-filter": "^0.4.1",
+    "gulp-git": "^1.2.1",
+    "gulp-jshint": "^1.5.5",
+    "gulp-minify-css": "^1.2.3",
+    "gulp-size": "^0.3.0",
+    "gulp-uglify": "^0.2.1",
+    "gulp-useref": "^0.4.3",
+    "gulp-util": "^2.2.14",
+    "open": "0.0.5",
+    "semver": "^4.3.3",
+    "merge-stream": "^1.0.0"
+  }
+}

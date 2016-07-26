@@ -1,0 +1,916 @@
+﻿/*
+    ===========================
+    ===========================
+         General
+    ===========================
+    ===========================
+*/
+
+html, body, .angular-leaflet-map {
+   padding: 0; 
+   margin: 0;
+   height: 100%;
+   width: 100%;
+   overflow-y:hidden;
+   font-family: "Source Sans Pro", sans;
+}
+h1, h2, h3, h4, h5, h6 {
+	font-family: "Source Sans Pro", sans;
+}
+
+body {
+    padding-top: 18px;
+}
+
+#toast-container > div {
+   opacity: 1 !important; 
+}
+
+.btn-toolbar .btn {
+    margin-bottom: 5px; 
+}
+
+#wim_logo {
+    background: black none repeat scroll 0 0;
+    border-radius: 5px;
+    width: 45px;
+}
+
+#wim_logo:hover{
+    background: blue none repeat scroll 0 0;
+	opacity: 0.8;
+	cursor: pointer;
+}
+
+.wim-btn-group {
+    margin-bottom:4px;
+}
+
+/*
+    ===========================
+    ===========================
+         Leaflet Overrides
+    ===========================
+    ===========================
+*/
+
+.legendSwatch {
+    opacity: 0.6;
+}
+
+.legendGroup {
+    padding:10px
+}
+
+/* disable some default controls*/
+.leaflet-control-layers.leaflet-control {
+    display: none;
+}
+
+.leaflet-control-locate {
+    display: none;
+}
+
+/*Zoom controls*/
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out{
+    padding-top: 0;
+}
+
+.leaflet-popup-content-wrapper,.leaflet-popup-content
+ {
+   -webkit-border-radius: 0 !important;
+   -moz-border-radius: 0 !important;
+    border-radius: 0 !important;
+ }
+
+.leaflet-control{
+   -webkit-border-radius: 0 !important;
+   -moz-border-radius: 0 !important;
+    border-radius: 0 !important;
+}
+
+div.leaflet-top > .elevation {
+    display:none;
+}
+
+#elevation-div {
+    background-color:white !important;
+    padding:10px;
+}
+
+.elevation-close-button {
+    left:10px;
+}
+
+.map-position {
+    padding: 0px 4px;
+    font-size:small;
+    font-weight:400;
+    background-color: rgba(255, 255, 255, 1);
+    margin-bottom:50px;
+    margin-left:9px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+    z-index:99999;
+}
+
+.exploration-tools-header {
+    height: 30px;
+    display: inline-block;
+    float: right;
+}
+
+.exploration-tools-close-button {
+    margin-right:20px;  
+}
+
+.exploration-tools-header .close{
+    font-size: 22pt;
+    margin: 0 auto;
+    width: 40px;
+    height: 40px;
+    opacity: 1;
+    background-color: white;
+    border-radius: 50%;
+    box-sizing: border-box;
+    padding: 0 0 2px 0;
+    float: right;
+    color: rgba(0,0,0,0.5);
+    box-shadow: 1px 1px 5px #333;
+    position: relative;
+    left: 10px;
+    top: -25px;
+}
+.exploration-tools-header .close:hover{
+    border: none;
+    color: rgba(44,116,183,.5);
+}
+
+.exploration-tools-collapsed {
+    position: absolute;
+    background: white;
+    z-index: 100;
+    left: 10px;
+    top: 130px;
+    transition: all .2s;
+    font-size: 12pt;
+    box-sizing: border-box;
+    padding: 0;
+    height: 36px;
+    width: 36px;
+    box-shadow: 1px 1px 5px #333;
+    background-image: url(../images/tool-box.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 18px 18px;
+}
+
+.exploration-tools-expanded {
+    position: absolute;
+    background: white;
+    z-index: 100;
+    width:200px;
+    left: 10px;
+    top: 130px;
+    box-shadow: 1px 1px 5px #333;
+    padding: 10px;
+    transition: all .2s;
+}
+
+.exploration-tools-collapsed:hover{
+    cursor: pointer;
+    background-color: #f0f0f0;
+}
+.exploration-tools-expanded .btn-wim-sm{
+    font-size: 8.5pt;
+    font-weight: 400;
+}
+
+.angular-leaflet-control-layers-collapsed {
+    
+    position: absolute;
+    background: white;
+    z-index: 100;
+    right: 10px;
+    top: 10px;
+    box-shadow: 1px 1px 5px #333;
+    padding: 15px;
+    background-image: url(../images/layers.png);
+    background-repeat: no-repeat;
+    background-position: center;
+	width: 36px;
+	height: 36px;
+}
+
+.angular-leaflet-control-layers-expanded {
+    position: absolute;
+    background: white;
+    z-index: 100;
+    right: 10px;
+    top: 10px;
+    width: 200px;
+    height:90%;
+    box-shadow: 1px 1px 5px #333;
+    padding: 5px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    transition: all .2s;
+}
+
+.angular-leaflet-control-layers-header {
+    height: 30px;
+    display: inline-block;
+    float: left;
+}
+
+.angular-leaflet-control-layers-close-button {
+    margin-right:20px;  
+}
+
+.angular-leaflet-control-layers-header .close{
+    font-size: 22pt;
+    margin: 0 auto;
+    width: 40px;
+    height: 40px;
+    opacity: 1;
+    background-color: white;
+    border-radius: 50%;
+    box-sizing: border-box;
+    padding: 0 0 2px 0;
+    float: left;
+    color: rgba(0,0,0,0.5);
+    box-shadow: 1px 1px 5px #333;
+    position: relative;
+    left: 10px;
+    top: -25px;
+}
+.angular-leaflet-control-layers-header .close:hover{
+    border: none;
+    color: rgba(44,116,183,.5);
+}
+
+.angular-leaflet-control-layers .lf-row label {
+    cursor: pointer;
+    width: 75%;
+}
+
+.angular-leaflet-control-layers .lf-row .lf-icon-ol {
+    padding-left: 8px;
+}
+
+.angular-leaflet-control-layers .lf-row .lf-icon {
+    cursor: pointer;
+    float: left;
+    margin-right: 5px;
+    padding-top: 2px;
+}
+
+.angular-leaflet-control-layers .lf-row label .lf-text {
+    float: left;
+}
+
+.angular-leaflet-control-layers .lf-row .lf-icon-ol-group {
+    color: #00650a;
+}
+
+.angular-leaflet-control-layers .lf-row .lf-icons {
+    float: right;
+}
+
+/*Layers/right button*/
+.angular-leaflet-control-layers-expanded{
+    padding: 0;
+}
+.angular-leaflet-control-layers-expanded .close-legend{
+    display: block;
+    margin: 0 auto;
+    padding: 10px 0;
+    border: none;
+    width: 100%;
+    font-size:9pt;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.angular-leaflet-control-layers-expanded .list-group-item,
+.angular-leaflet-control-layers-expanded .list-group-item-active{
+    padding: 15px 5px 25px 5px;
+    font-weight: 400;
+    text-align: center;
+}
+.angular-leaflet-control-layers-expanded .list-group-item-active{
+    background-color: #2D3245;
+}
+.angular-leaflet-control-layers-expanded .list-group-item-active label{
+    color: #FFF;
+}
+.angular-leaflet-control-layers-expanded .list-group-item-active label,
+.angular-leaflet-control-layers-expanded .list-group-item label{
+    display: block;
+    text-align: center;
+}
+.angular-leaflet-control-layers-expanded .list-group-item .fa-chevron-down,
+.angular-leaflet-control-layers-expanded .list-group-item-active .fa-chevron-up{
+    display: block !important;
+    width: 100% !important;
+    padding: 0 0 10px 0 !important;
+    text-align: center !important;
+
+}
+
+/*
+    ===========================
+    ===========================
+         Navigation Bar
+    ===========================
+    ===========================
+*/
+
+.navbar-btn{
+    background-color: transparent;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 12pt;
+    margin: 18px auto;
+}
+.navbar-btn:hover{
+    font-size: 12pt;
+    background-color: transparent;
+    border: none;
+    color: rgba(255,255,255,0.8)
+}
+.navbar-btn:focus{
+    background-color: transparent;
+    border: none;
+    color: rgba(255,255,255,0.8);
+    font-size: 12pt;
+}
+.navbar-btn:active{
+    color: rgba(255,255,255,1) !important;
+    background-color: transparent !important;
+    font-size: 12pt;
+    border: none;
+}
+
+.navbar-brand {
+  padding:15px 20px;
+}
+
+.navbar-app{
+    background-color: #2D3146;
+}
+
+.navbar-brand{
+    padding-top: 18px;
+}
+
+.app-name{
+    position: relative;
+    top:-2px;
+    font-weight:300;
+}
+
+.navBarButton{
+    margin-top:12px;
+    margin-right:12px;
+}
+
+/*
+    ===========================
+    ===========================
+     USGS Search API overrides
+    ===========================
+    ===========================
+*/
+
+.search-bar {
+    margin:0px;
+    padding-left:0px;
+}
+
+#sapi-searchTextBox {
+    font-family: "Source Sans Pro", sans !important;
+    width: 100% !important;
+    height: 35px !important;
+    padding: 6px 12px !important; 
+    margin-left: 0px !important;
+    border-radius: 2px !important;
+    border: 2px solid rgba(45, 49, 70, 0.23) !important;
+}
+
+.sapi .ui-autocomplete {
+    font-family: "Source Sans Pro", sans !important;
+    border-radius: 4px !important;
+}
+
+.sapi-autocomplete-title {
+    font-family: "Source Sans Pro", sans !important;
+    background-color : #2D3146 !important
+}
+
+.sapi-autocomplete-tip {
+    font-family: "Source Sans Pro", sans !important;
+}
+
+.sapi-autocomplete-category {
+    font-family: "Source Sans Pro", sans !important;
+    background-color : #0071BC !important
+}
+
+.sapi-autocomplete-item {
+    font-family: "Source Sans Pro", sans !important;
+    font-weight: 200 !important;
+}
+
+.sapi-autocomplete-item {
+    font-family: "Source Sans Pro", sans !important;
+    font-weight: 200 !important;
+}
+
+.sapi-autocomplete-itemAnnotation {
+    font-family: "Source Sans Pro", sans !important;
+    font-weight: bold !important;
+}
+
+
+/*
+    ===========================
+    ===========================
+             Sidebar
+    ===========================
+    ===========================
+*/
+
+.sidebar {
+    min-height: 0 !important;
+}
+
+.sidebar-content {
+    box-sizing:border-box;
+    padding-top: 70px;
+}
+
+.scrollable-content {
+    overflow-x:hidden;
+}
+
+.well {
+    margin-top:10px;
+    overflow-x:hidden;
+}
+
+.sidebar{
+  background-color: #ECEEF4;
+}
+
+#searchSubmit {
+    margin-left:-2px;
+    height:35px;
+
+}
+
+.list-group-body {
+    background-color:white;
+    border-radius:0 0 5px 5px;
+    padding-right:10px;
+    padding-bottom:25px;
+    padding-top: 10px;
+    padding-left:10px;
+    margin-bottom:3px;
+    border:1px thin;
+}
+.list-group-body a {
+    padding-left:10px;
+    float:left;    
+    height: 25px;
+    width:100%;
+    padding-right: 10px;
+    overflow:hidden;
+    text-overflow: ellipsis; 
+    white-space: nowrap;
+}
+
+.list-group-item{
+  background-color: #E2E2E2;
+  text-align: right;
+  text-transform: uppercase;
+  font-size: 10pt;
+  box-sizing: border-box;
+  padding: 18px;
+  letter-spacing: 2px;
+  font-weight: 400;
+  color: #6E7490 !important;
+  transition: 0.2s;
+}
+  .list-group-item i{
+    padding-left: 5px;
+    display: inline-block;
+    text-align: center;
+    width: 50px;
+  }
+  .list-group-item:hover{
+    color:#000 !important;
+    transition: 0.2s;
+  }
+
+    .dropdown-menu{
+    /*max-height: 150px;
+    width: 90%;*/
+    /*overflow-y:scroll;*/ 
+  }
+
+/*Active sidebar item*/
+.list-group-item-active{
+    display: block;
+    background-color: #0071BC;
+    text-align: right;
+    text-transform: uppercase;
+    font-size: 10pt;
+    box-sizing: border-box;
+    padding: 18px;
+    letter-spacing: 2px;
+    font-weight: 400;
+    color: #fff !important;
+    transition: 0.2s;
+}
+    .list-group-item-active i{
+      padding-left: 5px;
+      display: inline-block;
+      text-align: center;
+      width: 50px;
+      position: relative; top:3px;
+    }
+    .list-group-item-active:hover{
+        text-decoration: none !important;
+    }
+.exploration-tools {
+    background-color: #99b3e6;
+    color: white !important;
+}
+
+/*Active small link inside*/
+.list-group-item-link-active{
+  color: RGBA(34, 45, 57, 1);
+  font-weight:bolder;
+}
+
+/*Bottom WIM Identification*/
+.identification{
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 9pt;
+  display: block;
+  width: 100%;
+  margin: 0; padding: 0;
+  padding-left: 8px;
+  opacity: 0.75;
+  text-align: center;
+  color: #6E7490;
+}
+
+/*
+    ===========================
+    ===========================
+        About and Help Modal
+    ===========================
+    ===========================
+*/
+.wateruseTabs > li {
+    float: right;
+}
+.overflowTable {
+ overflow-x:auto;
+}
+.modal{
+    overflow-y: auto;
+}
+
+.modal-title{
+  color: #6E7490;
+  padding-top: 0;
+}
+.modal-footer{
+  text-align: center;
+}
+  .modal-footer p{
+    text-align: center !important;
+    margin: 0 auto !important;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 9pt;
+    line-height: 1em;
+  }
+
+.modal-backdrop{
+  /*background-color: #161C27;*/
+}
+
+.modal-dialog{
+  width: 60%;
+  box-sizing: border-box;
+  padding: 25px;
+  margin: 2% 20% 2% 20%;
+  color: #000;
+  letter-spacing: 1px;
+  font-weight: 400;
+}
+  .modal-content{
+    border-radius: 0;
+  }
+  .modal-content p{
+    padding-top: 15px;
+  }
+
+  #disclaimer h3{
+    margin-top: 15px;
+    margin-bottom: 0;
+  }
+    #disclaimer p{
+      font-size: 9pt;
+    }
+
+    .modal-backdrop.backdropZ {
+    z-index: 9998 !important;
+    }
+    .modal.windowZ {
+        z-index: 9999 !important;
+    }
+
+    .btn-file {
+        position: relative;
+        overflow: hidden;
+        box-sizing: border-box;
+        padding: 8px 17px;
+        background-color: #FFFFFF;
+        border-radius: 2px;
+        border: 2px solid rgba(45, 49, 70, 0.23);
+        color: rgba(45, 49, 70, 0.8);
+        letter-spacing: 0.75px;
+        font-family: "Source Sans Pro", sans;
+        font-weight: 600;
+        display: inline-block;
+        font-size: 12pt;
+        transition: 0.15s;
+        margin: 5px 0;
+    }
+
+    .btn-file:hover {
+      cursor: pointer;
+      border: 2px solid rgba(45, 49, 70, 0.3);
+      transition: 0.15s;
+      background-color: rgba(45, 49, 70, 0.05);
+    }
+    .btn-file input[type=file] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 100%;
+        min-height: 100%;
+        font-size: 100px;
+        text-align: right;
+        filter: alpha(opacity=0);
+        opacity: 0;
+        outline: none;
+        background: white;
+        cursor: inherit;
+        display: block;
+    }
+
+    .removeItem {
+	    float: left;
+	    position: absolute;
+	    margin: 0px 0px 0px 8px;
+    }
+
+    #supportContent p {
+        font-size: 14px;
+    }
+
+    .wim-warning {
+       background-color: #fdb81e !important;
+     }
+
+    .table-hover > tbody > tr:hover {
+        cursor:pointer;
+        background-color: #999999;
+    }
+
+/*
+    ===========================
+    ===========================
+           Print Styles
+    ===========================
+    ===========================
+*/
+
+        @media print{
+        body * {
+            visibility: hidden;
+            -webkit-print-color-adjust: exact !important; 
+        }
+        .wim-alert-warning {
+            background-color: #fdb81e !important;
+        }
+        table .wim-warning {
+            background-color: #fdb81e !important;
+        }
+        .hidden-print {
+            display: none !important;
+        }
+        #print-content * {
+            visibility: visible;
+        }
+        .modal{
+            position: absolute;
+            left: 0;
+            top: 0;
+            margin: 0;
+            padding-right:20px;
+            /*padding: 0;*/
+            min-height:550px;
+            visibility: visible;
+            /**Remove scrollbar for printing.**/
+            overflow: visible !important;
+        }
+        .modal-dialog {
+            
+            width: 100%;
+            padding: 0;
+            margin:20px;
+                
+            visibility: visible !important;
+            /**Remove scrollbar for printing.**/
+            overflow: visible !important;
+        }
+        .modal-footer {
+            border-top:0;
+        }
+        .leaflet-control-container{
+            display: none!important;
+        }
+    }
+
+/*
+    ===========================
+    ===========================
+           Mobile Styles
+    ===========================
+    ===========================
+*/
+.sidebar-toggle{
+    position: relative;
+    top:14px;
+    color: #fff !important;
+    opacity: 1;
+    transition: 0.2s;
+}
+    .sidebar-toggle:hover{
+        opacity: 0.55;
+        transition:0.2s;
+    }
+
+
+@media only screen and (max-width: 740px) {
+    .navbar-brand{
+        margin-bottom: 20px;
+    }
+
+    .app-name{
+        font-size: 14pt;
+    }
+
+    .navBarButton{
+      top: 2px; 
+      right:10px;
+      padding-left:8px;
+      padding-right:8px;
+    }
+
+    .modal-dialog{
+      width: 96%;
+      box-sizing: border-box;
+      padding: 25px;
+      margin: 2% 2% 2% 2%;
+      color: #000;
+      letter-spacing: 1px;
+      font-weight: 400;
+      max-height: 96%;
+    }
+
+    .modal-body ul li a{
+        font-size: 8pt;
+        padding: 6px;
+    }
+
+
+    .modal-body p{
+        font-size: 8pt;
+    }
+
+}
+
+@media only screen and (max-width: 590px) {
+    .navbar-brand{
+        top:0px;
+        position: relative;
+    }
+
+    .navBarButton{
+      top: 2px; 
+      right:10px;
+      padding-left:8px;
+      padding-right:8px;
+    }
+
+    .app-name{
+        font-size: 12pt;
+    }
+
+    #aboutTabs li{
+        width: 100%;
+        margin: 0 auto;
+        padding: 0;
+        display: block;
+    }
+#aboutTabs li a{
+    border-radius: 20px;
+    border: none;
+    padding-bottom: 8px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 5px;
+    background-color: #ECEEF4;
+    font-weight: bolder;
+}
+    #aboutTabs li a:hover{
+        background-color: #fff;
+    }
+    #aboutTabs .active a{
+        background-color: #19232F !important;
+        color: #fff;
+        border: none;
+    }
+}
+
+@media only screen and (max-width: 520px) {
+    .navbar-brand{
+        width:120px;
+        position: relative; 
+        top:4px;
+    }
+
+    .navBarButton{
+      top: 2px; 
+      right:10px;
+      padding-left:8px;
+      padding-right:8px;
+    }
+
+    .app-name{
+        max-width: 130px;
+        line-height: 15px;
+        padding-left: 6px;
+        letter-spacing: 1px;
+        font-weight: 400;
+        display: inline-block;
+        position: relative; 
+        top:22px;
+        font-size: 10pt;
+    }
+
+}
+
+
+@media only screen and (max-width: 420px) {
+    .navbar-app {
+        height:70px;
+    }
+    .navbar-brand{
+        width:100px;
+        position: absolute; 
+        top:-1px;
+        left:34px;
+    }
+
+    .navBarButton{
+      top: 2px; 
+      right:10px;
+      padding-left:6px;
+      padding-right:6px;
+    }
+
+    .app-name{
+        max-width: 130px;
+        line-height: 15px;
+        padding-left: 6px;
+        letter-spacing: 1px;
+        font-weight: 400;
+        display: inline-block;
+        position: relative; 
+        top:34px;
+        font-size: 10pt;
+    }
+
+}
