@@ -1,4 +1,4 @@
-﻿<div id="print-content">   
+<div id="print-content">   
     <!-- Modal -->
     <div class="modal-header hidden-print">
         <button type="button" class="close" ng-click="vm.close()"><span aria-hidden="true">&times;</span></button>
@@ -19,21 +19,21 @@
                 <h2>{{vm.reportTitle}}</h2>
                 <dl class="dl-horizontal">
                     <dt>Generated Date:</dt>
-                    <dd>{{vm.reportDate | date:'yyyy/MM/dd'}}</dd>
+                    <dd>{{vm.reportDate | date:'yyyy-MM-dd HH:mm:ss'}}</dd>
                 </dl>
                 <p>{{vm.reportComments}}</p>
             </div>
             <ul id="reportTabs" class="nav nav-tabs hidden-print">
                 <li ng-class="{'active':vm.selectedTabName==='studyarea'}"><a ng-click="vm.selectTab('studyarea')"><i class="fa fa-map-marker"></i>&nbsp;Study Area</a></li>
-                <li ng-if="vm.availableTabNames.indexOf('fdctm')>-1" ng-class="{'active':vm.selectedTabName==='fdctm'}"><a ng-click="vm.selectTab('fdctm')"><i class="fa fa-picture-o"></i>&nbsp;Flow Duration Curve Transfer Method Scenario</a></li>
-                <li ng-if="vm.availableTabNames.indexOf('fla')>-1" ng-class="{'active':vm.selectedTabName==='fla'}"><a ng-click="vm.selectTab('fla')"><i class="fa fa-picture-o"></i>&nbsp;Flow Anywhere Scenario</a></li>
-                <li ng-if="vm.availableTabNames.indexOf('prms')>-1" ng-class="{'active':vm.selectedTabName==='prms'}"><a ng-click="vm.selectTab('prms')"><i class="fa fa-picture-o"></i>&nbsp;PRMS Scenario</a></li>
-                <li ng-if="vm.availableTabNames.indexOf('flow')>-1" ng-class="{'active':vm.selectedTabName==='flow'}"><a ng-click="vm.selectTab('flow')"><i class="fa fa-tint"></i>&nbsp;Estimated Flow</a></li>
-                <li ng-if="!vm.canEdit" ng-class="{'active':vm.selectedTabName==='citations'}"><a ng-click="vm.selectTab('citations')"><i class="fa fa-book"></i>&nbsp;Citations</a></li>
+                <li ng-if="vm.availableScenarioNames.indexOf('fdctm')>-1" ng-class="{'active':vm.selectedTabName==='fdctm'}"><a ng-click="vm.selectTab('fdctm')"><i class="fa fa-picture-o"></i>&nbsp;Flow Duration Curve Transfer Method Scenario</a></li>
+                <li ng-if="vm.availableScenarioNames.indexOf('fla')>-1" ng-class="{'active':vm.selectedTabName==='fla'}"><a ng-click="vm.selectTab('fla')"><i class="fa fa-picture-o"></i>&nbsp;Flow Anywhere Scenario</a></li>
+                <li ng-if="vm.availableScenarioNames.indexOf('prms')>-1" ng-class="{'active':vm.selectedTabName==='prms'}"><a ng-click="vm.selectTab('prms')"><i class="fa fa-picture-o"></i>&nbsp;PRMS Scenario</a></li>
+                <li ng-class="{'active':vm.selectedTabName==='flow'}"><a ng-click="vm.selectTab('flow')"><i class="fa fa-tint"></i>&nbsp;Estimated Flow</a></li>
+                <li ng-class="{'active':vm.selectedTabName==='citations'}"><a ng-click="vm.selectTab('citations')"><i class="fa fa-book"></i>&nbsp;Citations</a></li>
             </ul>
 
             <div id="studyAreaTab" ng-if="vm.selectedTabName==='studyarea'">              
-                <leaflet width="100%" height="400px" layers="vm.layers" geojson="vm.geojson" geojson-nested="true" center="vm.center" defaults="vm.defaults"></leaflet><br />
+                <leaflet width="100%" height="400px" geojson="vm.geoJSON" layers="vm.layers" center="vm.center" defaults="vm.defaults"></leaflet><br />
                 <div ng-if="vm.studyAreaParametersReady">
                     <!--Parameter Table if just basin chars-->
                     <div class="well well-sm">
@@ -48,12 +48,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-repeat="parameter in vm.studyAreaParameters" ng-init="parameter.isbusy = false">
+                                <tr ng-repeat="parameter in vm.studyAreaParameters">
                                     <td ng-bind="parameter.name"></td>
                                     <td ng-bind="parameter.description"></td>
                                     <td ng-bind="parameter.value"></td>
                                     <td ng-bind="parameter.unit"></td>
-                                    <td ng-if="vm.canEdit"><button class="btn-wim-default" ng-click="vm.refreshParameter(parameter)"><i class="fa fa-refresh" ng-class="parameter.isbusy ? 'fa-spin':''"></i></button></td>                                  
+                                    <td ng-if="vm.canEdit"><button class="btn-wim-default" ng-click="vm.refreshParameter(parameter)"><i class="fa fa-refresh"></i></button></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -83,72 +83,12 @@
                 </div>
             </div>  
             <div id="statisticScenarioTab" ng-show="vm.selectedTabName==='fdctm' || vm.selectedTabName==='fla'">
-                <div id="editableScenarios" ng-if="vm.canEdit || vm.selectedScenario.status < 10">
-                    <div ng-repeat="sc in [vm.selectedScenario]">
-                        <!--Reference gage-->
-                        <div class="btn-group wim-btn-group" dropdown is-open="status.isopen">
-                            <button  type="button" class="btn-wim-sm btn-wim-default dropdown-toggle" dropdown-toggle ng-disabled="!vm.canEdit">
-                                ({{sc.SelectedReferenceGage.StationID}}) {{sc.SelectedReferenceGage.Name}} <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu">
-                                <li ng-repeat ="item in sc.ReferenceGageList"><a ng-click="sc.SelectedReferenceGage = item" title="{{item.hasOwnProperty('correlation')? 'Corrilation: ' + item.correlation:''}}">({{item.StationID}}) {{item.Name}}</a></li>
-                            </ul>
-                        </div>
-
-
-                        <!--Parameter Table if just basin chars-->
-                        <div id="ModelParameters" class="well well-sm">
-                            <h3>Model Parameters</h3>
-                            <table class="table table-condensed">
-                                <thead class="param-table">
-                                    <tr>
-                                        <th>Parameter Code</th>
-                                        <th>Description</th>
-                                        <th>Value<font color="red"> *</font></th>
-                                        <th>Unit</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat-start="parameter in sc.Parameters">
-                                        <td>{{parameter.code}}</td>
-                                        <td>{{parameter.description}}</td>
-                                        <td ng-if="vm.canEdit"><input type="number" class="form-control" name="parameter.code" placeholder="Enter a Decimal" ng-model="parameter.value" ng-pattern="/^[0-9]{1,7}(\.[0-9]+)?$/" required /></td>
-                                        <td ng-if="!vm.canEdit">{{parameter.value}}</td>
-                                        <td>{{parameter.unit}}</td>
-                                    </tr>
-                                    <tr ng-repeat-end ng-if="parameter.value > parameter.limits.max || parameter.value < parameter.limits.min">
-                                        <td colspan="100%" class="wim-alert-warning" style="display:table-cell">
-                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Warning: {{parameter.code}} is outside the suggested range; min: {{parameter.limits.min}} max: {{parameter.limits.max}} {{parameter.unit}}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- FLA Aggregated Region -->
-                        <div id="AggregatedRegion" ng-if="vm.selectedTabName==='fla'">
-                            <div id="AggregatedTable" class="well well-sm">
-                                <table class="table table-condensed" title="Exceedance Probabilities">
-                                    <thead>
-                                        <tr>
-                                            <th>Aggregated Region</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{sc.regionID}}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div id="reportedScenarios" ng-if="vm.selectedScenario.status == 10 && !vm.canedit">
+                <div ng-if="vm.selectedScenario.status == 10">
                     <div ng-repeat="sc in [vm.selectedScenario.result]">
                         <div class="wim-alert">
                             <h2 class="step-label">{{sc.Description}}</h2>
-                            <span>StartDate: </span><span>{{sc.StartDate| date:'yyyy/MM/dd'}}</span><br />
-                            <span>EndDate: </span><span>{{sc.EndDate| date:'yyyy/MM/dd'}}</span><br />
+                            <span>StartDate: </span><span>{{sc.StartDate}}</span><br />
+                            <span>EndDate: </span><span>{{sc.EndDate}}</span><br />
                         </div>
                         <!--Reference gage-->
                         <div id="ReferenceGage" class="well well-sm">
@@ -207,7 +147,7 @@
                                 <li ng-class="{'active':vm.selectedSecondaryTabName==='table'}"><a ng-click="vm.selectSecondaryTab('table')"><i class="fa fa-table"></i>&nbsp;Table</a></li>
                             </ul>
                             <div id="exceedanceGraph" ng-if="vm.selectedSecondaryTabName==='graph'">
-                                <nvd3 options='vm.selectedGraphOption' data='vm.selectedGraphData'></nvd3>
+                                <nvd3 options='vm.selectedGraphOption' data='vm.selectedGraphData'></nvd3> 
                             </div>
                             <div id="exceedanceTable" class="well well-sm" ng-if="vm.selectedSecondaryTabName==='table'">
                                 <!--Table-->
@@ -225,10 +165,10 @@
                                         </tr>
                                     </tbody>
                                 </table>
-                            </div>
+                            </div>                        
                         </div>
                         <!-- FLA Aggregated Region -->
-                        <div id="AggregatedRegion" ng-if="vm.selectedTabName==='fla'">
+                        <div id="AggregatedRegion" ng-if="vm.selectedTabName==='fla'">                            
                             <div id="AggregatedTable" class="well well-sm">
                                 <table class="table table-condensed" title="Exceedance Probabilities">
                                     <thead>
@@ -249,13 +189,7 @@
                     </div>
                 </div>
             </div>
-            <div id="prmsScenarioTab" ng-show="vm.selectedTabName==='prms'">
-                <div ng-repeat="sc in [vm.selectedScenario]">
-                    <!-- add prms segm... remove if editable -->
-
-                </div>
-            </div>
-            <div id="flowTab"  ng-if="vm.selectedTabName==='flow'">
+            <div id="flowTab" ng-if="vm.selectedTabName==='flow'">
                 <div id="flows" ng-init="vm.selectSecondaryTab('graph')">
                     <ul id="secondaryTabs" class="nav nav-tabs hidden-print">
                         <li ng-class="{'active':vm.selectedSecondaryTabName==='graph'}"><a ng-click="vm.selectSecondaryTab('graph')"><i class="fa fa-area-chart"></i>&nbsp;Graph</a></li>
@@ -270,7 +204,7 @@
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <th ng-attr-colspan="{{vm.availableTabNames.length}}">Estimated Flow (cfs)</th>
+                                    <th ng-attr-colspan="{{vm.availableScenarioNames.length}}">Estimated Flow (cfs)</th>
                                 </tr>
                                 <tr>
                                     <th>Date</th>
@@ -279,7 +213,7 @@
                             </thead>
                             <tbody ng-repeat="(index,obs) in vm.scenarioFlows[0].Observations">
                                 <tr>
-                                    <td>{{obs.Date| date:'yyyy/MM/dd'}}</td>
+                                    <td>{{obs.Date}}</td>
                                     <td ng-repeat="modelflow in vm.scenarioFlows">{{modelflow.Observations[index].Value}}</td>
                                 </tr>
                             </tbody>

@@ -535,9 +535,9 @@ var StreamEst;
                             results.features.forEach(function (queryResult) {
                                 var prmsscen = sa.Scenarios[0];
                                 if (queryResult.geometry.type === 'LineString') {
-                                    prmsscen.SelectedSegmentList.push({ SegmentID: queryResult.id, RiverName: queryResult.layerId, feature: queryResult.geometry });
+                                    prmsscen.SelectedSegmentList.push({ SegmentID: queryResult.id, RiverID: queryResult.layerId, feature: queryResult.geometry });
                                     _this.addGeoJSON("PRMSSeg_" + queryResult.layerId + "." + queryResult.id, queryResult.geometry);
-                                    prmsscen.status = StreamEst.Models.ScenarioStatus.e_complete;
+                                    prmsscen.status = StreamEst.Models.ScenarioStatus.e_loaded;
                                 } //end if                                                    
                             }); //next feature
                             sa.status = StreamEst.Models.StudyAreaStatus.e_ready;

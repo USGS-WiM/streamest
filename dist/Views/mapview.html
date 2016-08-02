@@ -1,0 +1,34 @@
+<leaflet layers="vm.layers" geojson="vm.geojson" geojson-nested="true" center="vm.center" controls="vm.controls" markers="vm.markers" defaults="vm.mapDefaults" bounds="vm.bounds" ng-style="{cursor:vm.cursorStyle}">
+    <!--<i id="loadingSpinner" class="fa fa-spinner fa-5x fa-spin"></i>-->    
+    <wim-legend stop-event="click"></wim-legend>
+</leaflet>
+<div ng-class="vm.explorationToolsExpanded ? 'exploration-tools-expanded ' : 'exploration-tools-collapsed '" ng-click="vm.explorationToolsExpanded = true; $event.stopPropagation(); $event.preventDefault();" ng-init="vm.explorationToolsExpanded == false">
+    <div ng-show="vm.explorationToolsExpanded">
+        <div class="row exploration-tools-header">
+            <h4 ng-if="title">Layer Control}</h4>
+            <button class="close exploration-tools-close-button" ng-click="vm.explorationToolsExpanded = false; $event.stopPropagation(); vm.resetExplorationTools()">&times;</button>
+        </div>
+        <h6>Exploration Tools</h6>
+        <div class="group-wrapper">
+            <button ng-class="!vm.explorationService.allowStreamgageQuery ? 'btn-wim-sm btn-wim-primary btn-wim-group-1':'btn-wim-sm btn-wim-warning btn-wim-group-1'" ng-click="vm.resetExplorationTools(); vm.initiateStreamgageQuery()"><span><i class="fa fa-info-circle"></i>&nbsp;&nbsp;Query Streamgages</span></button>
+            
+            <button ng-class="!vm.explorationService.drawMeasurement ? 'btn-wim-sm btn-wim-primary btn-wim-group-1':'btn-wim-sm btn-wim-warning btn-wim-group-1'" ng-click="vm.resetExplorationTools(); vm.explorationService.drawMeasurement = !vm.explorationService.drawMeasurement;"><span><i class="fa fa-arrows-h"></i>&nbsp;&nbsp;Measure Tool</span></button>
+            <div id="measurement-div" class="wim-alert row"  ng-show="vm.explorationService.measurementData.length > 0" ng-bind="vm.explorationService.measurementData"></div>
+
+            <button ng-class="!vm.explorationService.drawElevationProfile ? 'btn-wim-sm btn-wim-primary btn-wim-group-1':'btn-wim-sm btn-wim-warning btn-wim-group-1'" ng-click="vm.resetExplorationTools(); vm.explorationService.drawElevationProfile = !vm.explorationService.drawElevationProfile; vm.showElevationChart = !vm.showElevationChart"><span><i class="fa fa-line-chart"></i>&nbsp;&nbsp;Elevation Profile Tool</span></button>
+                <div id="elevation-help-div" class="wim-alert row" ng-show="vm.explorationService.showElevationChart">Click the map to begin<br>Double click to end the drawing and query elevation</div>
+                <div id="elevationData" ng-show="vm.explorationService.showElevationChart">
+                    <button class="close pull-left"  ng-click="vm.explorationService.showElevationChart = !vm.explorationService.showElevationChart">&times;</button>
+                    <div id="elevation-div" class="leaflet-control elevation"></div>
+                </div>
+
+            <button class="btn-wim-sm btn-wim-primary btn-wim-group-1" ng-click="vm.resetExplorationTools(); vm.showLocation()"><span><i class="fa fa-map-marker"></i>&nbsp;&nbsp;Show your location</span></button>
+            <button class="btn-wim-sm btn-wim-primary btn-wim-group-1" ng-click="vm.resetMap()"><span><i class="fa fa-home"></i>&nbsp;&nbsp;Reset the view</span></button>         
+        </div>  
+    </div>
+</div>
+<div class="map-position leaflet-bottom leaflet-left">
+    <span>Zoom Level: {{vm.center.zoom}}</span> <br/>
+    <span id="mapscale">Map Scale: 1:{{vm.mapScale}}</span> <br/>
+    <span>Lat: {{(vm.mapPoint.lat).toFixed(4)}}, Lon: {{(vm.mapPoint.lng).toFixed(4)}}</span>
+</div>
