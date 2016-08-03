@@ -94,8 +94,6 @@
                                 <li ng-repeat ="item in sc.ReferenceGageList"><a ng-click="sc.SelectedReferenceGage = item" title="{{item.hasOwnProperty('correlation')? 'Corrilation: ' + item.correlation:''}}">({{item.StationID}}) {{item.Name}}</a></li>
                             </ul>
                         </div>
-
-
                         <!--Parameter Table if just basin chars-->
                         <div id="ModelParameters" class="well well-sm">
                             <h3>Model Parameters</h3>
@@ -117,7 +115,7 @@
                                         <td>{{parameter.unit}}</td>
                                     </tr>
                                     <tr ng-repeat-end ng-if="parameter.value > parameter.limits.max || parameter.value < parameter.limits.min">
-                                        <td colspan="100%" class="wim-alert-warning" style="display:table-cell">
+                                        <td colspan="100%" class="wim-alert" style="display:table-cell">
                                             <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Warning: {{parameter.code}} is outside the suggested range; min: {{parameter.limits.min}} max: {{parameter.limits.max}} {{parameter.unit}}
                                         </td>
                                     </tr>
@@ -191,11 +189,16 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr ng-repeat="parameter in sc.Parameters">
+                                    <tr ng-repeat-start="parameter in sc.Parameters">
                                         <td>{{parameter.code}}</td>
                                         <td>{{parameter.description}}</td>
                                         <td>{{parameter.value}}</td>
                                         <td>{{parameter.unit}}</td>
+                                    </tr>
+                                    <tr ng-repeat-end ng-if="parameter.value > parameter.limits.max || parameter.value < parameter.limits.min">
+                                        <td colspan="100%" class="wim-alert" style="display:table-cell">
+                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Warning: {{parameter.code}} is outside the suggested range; min: {{parameter.limits.min}} max: {{parameter.limits.max}} {{parameter.unit}}
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -221,7 +224,7 @@
                                     <tbody ng-repeat="(key, value) in sc.ExceedanceProbabilities">
                                         <tr>
                                             <td>{{key}}</td>
-                                            <td>{{value}}</td>
+                                            <td>{{value.toUSGSvalue()}}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -251,8 +254,18 @@
             </div>
             <div id="prmsScenarioTab" ng-show="vm.selectedTabName==='prms'">
                 <div ng-repeat="sc in [vm.selectedScenario]">
-                    <!-- add prms segm... remove if editable -->
-
+                    <!-- add prms segm... remove seg if editable -->
+                    <div class="well well-sm">
+                        <table class="table" title="prmssegments">
+                            <tbody ng-repeat="seg in sc.SelectedSegmentList">
+                                <tr>
+                                    <td><strong>{{vm.getPRMSRiverName(seg.RiverID)}}</strong></td>
+                                    <td>Segment: {{seg.SegmentID}}</td>
+                                    <td ng-if="vm.canEdit"><button ng-disabled="sc.SelectedSegmentList.length <= 1" class="btn-wim-default" ng-click="vm.removePRMSsegment(seg)"><i class="fa fa-times area-hidden='true'"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             <div id="flowTab"  ng-if="vm.selectedTabName==='flow'">
@@ -280,7 +293,7 @@
                             <tbody ng-repeat="(index,obs) in vm.scenarioFlows[0].Observations">
                                 <tr>
                                     <td>{{obs.Date| date:'yyyy/MM/dd'}}</td>
-                                    <td ng-repeat="modelflow in vm.scenarioFlows">{{modelflow.Observations[index].Value}}</td>
+                                    <td ng-repeat="modelflow in vm.scenarioFlows">{{modelflow.Observations[index].Value.toUSGSvalue()}}</td>
                                 </tr>
                             </tbody>
                         </table>

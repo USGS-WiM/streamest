@@ -295,6 +295,13 @@ var StreamEst;
             ReportController.prototype.loadScenario = function (scenarioCode) {
                 console.log(scenarioCode);
             };
+            ReportController.prototype.getPRMSRiverName = function (id) {
+                return this.studyAreaService.prmsNameLookup[id];
+            };
+            ReportController.prototype.removePRMSsegment = function (seg) {
+                this.studyAreaService.removePRMSSegment(seg);
+                this.showFeatures();
+            };
             //Helper Methods
             //-+-+-+-+-+-+-+-+-+-+-+-
             ReportController.prototype.initMap = function () {
@@ -337,25 +344,31 @@ var StreamEst;
             };
             ReportController.prototype.loadScenarioFlow = function (s) {
                 var _this = this;
-                if (s.status != StreamEst.Models.ScenarioStatus.e_complete && !s.result.hasOwnProperty("EstimatedFlow"))
+                try {
+                    if (s.status != StreamEst.Models.ScenarioStatus.e_complete && !s.result.hasOwnProperty("EstimatedFlow"))
+                        return false;
+                    switch (s.code.toLowerCase()) {
+                        case 'fdctm':
+                        case 'fla':
+                            this._scenarioFlows.push(s.result["EstimatedFlow"]);
+                            break;
+                        case 'prms':
+                            //loop over items and push separate
+                            if (Object.keys(s.result["EstimatedFlow"]).length === 0)
+                                return;
+                            for (var key in s.result["EstimatedFlow"]) {
+                                s.result["EstimatedFlow"][key].forEach(function (ts) {
+                                    _this._scenarioFlows.push(ts);
+                                }); //next                        
+                            } //next key
+                            break;
+                    } //end switch
+                    return true;
+                }
+                catch (e) {
+                    console.log("False due to catch");
                     return false;
-                switch (s.code.toLowerCase()) {
-                    case 'fdctm':
-                    case 'fla':
-                        this._scenarioFlows.push(s.result["EstimatedFlow"]);
-                        break;
-                    case 'prms':
-                        //loop over items and push separate
-                        if (Object.keys(s.result["EstimatedFlow"]).length === 0)
-                            return;
-                        for (var key in s.result["EstimatedFlow"]) {
-                            s.result["EstimatedFlow"][key].forEach(function (ts) {
-                                _this._scenarioFlows.push(ts);
-                            }); //next                        
-                        } //next key
-                        break;
-                } //end switch
-                return true;
+                }
             };
             ReportController.prototype.LoadCitations = function () {
                 this.citations = Citations;

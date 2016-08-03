@@ -60,13 +60,13 @@ var StreamEst;
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(SidebarController.prototype, "StudyAreasReady", {
+            Object.defineProperty(SidebarController.prototype, "StudyAreasInitialized", {
                 get: function () {
                     var sa = this.studyAreaService.studyAreas;
                     if (Object.keys(sa).length === 0)
                         return false;
                     for (var key in sa) {
-                        if (sa[key].status != StreamEst.Models.StudyAreaStatus.e_ready) {
+                        if (sa[key].status < StreamEst.Models.StudyAreaStatus.e_initialized) {
                             return false;
                         } //end if
                     }
@@ -179,6 +179,19 @@ var StreamEst;
                 this.EventManager.SubscribeToEvent(StreamEst.Services.onStudyAreaExcecuteComplete, evntHandler);
                 this.studyAreaService.computeScenarios(this.dateRange.dates.startDate, this.dateRange.dates.endDate);
             };
+            SidebarController.prototype.getPRMSRiverName = function (id) {
+                return this.studyAreaService.prmsNameLookup[id];
+            };
+            SidebarController.prototype.resetStudyArea = function (studyAreaType, obj) {
+                var _this = this;
+                var sa = this.studyAreaService.getStudyArea(studyAreaType);
+                if (sa == null)
+                    return false;
+                sa.Features.forEach(function (f) {
+                    _this.EventManager.RaiseEvent(WiM.Directives.onLayerChanged, _this, new WiM.Directives.LegendLayerChangedEventArgs(f.name, "visible", false));
+                });
+                delete this.studyAreaService.studyAreas[studyAreaType];
+            };
             //Helper Methods
             //-+-+-+-+-+-+-+-+-+-+-+-
             SidebarController.prototype.init = function () {
@@ -205,7 +218,7 @@ var StreamEst;
                                 this.toaster.pop("warning", "Warning", "You must first select a scenario to continue.", 5000);
                                 return false;
                             }
-                            if (!this.StudyAreasReady) {
+                            if (!this.StudyAreasInitialized) {
                                 var sa = this.studyAreaService.studyAreas;
                                 if (Object.keys(sa).length === 0)
                                     this.toaster.pop("warning", "Warning", "There are no study areas. First select a scenario.", 5000);

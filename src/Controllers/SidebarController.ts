@@ -78,11 +78,11 @@ module StreamEst.Controllers {
             };//next sa
             return false;
         }
-        public get StudyAreasReady(): boolean {
+        public get StudyAreasInitialized(): boolean {
             var sa = this.studyAreaService.studyAreas;
             if (Object.keys(sa).length === 0) return false;
             for (var key in sa) {
-                if (sa[key].status != Models.StudyAreaStatus.e_ready) {
+                if (sa[key].status < Models.StudyAreaStatus.e_initialized) {
                     return false;
                 }//end if
             };//next sa
@@ -202,6 +202,19 @@ module StreamEst.Controllers {
             this.studyAreaService.computeScenarios(this.dateRange.dates.startDate,this.dateRange.dates.endDate);
 
         }
+        public getPRMSRiverName(id: string): string {
+            return this.studyAreaService.prmsNameLookup[id];
+        }
+        public resetStudyArea(studyAreaType: Models.StudyAreaType, obj): boolean {
+            var sa = this.studyAreaService.getStudyArea(studyAreaType);
+            if (sa == null) return false;
+            sa.Features.forEach((f) => {
+                this.EventManager.RaiseEvent(WiM.Directives.onLayerChanged, this, new WiM.Directives.LegendLayerChangedEventArgs(f.name, "visible", false));
+            });
+            delete this.studyAreaService.studyAreas[studyAreaType];
+            
+
+        }     
 
         //Helper Methods
         //-+-+-+-+-+-+-+-+-+-+-+-
@@ -224,7 +237,7 @@ module StreamEst.Controllers {
                         if (this.isLoadingScenarios) { this.toaster.pop("warning", "Warning", "Loading scenario parameters please wait.", 5000); return false; }
                         if (!this.ScenariosSelected) { this.toaster.pop("warning", "Warning", "You must first select a scenario to continue.", 5000); return false; }
 
-                        if (!this.StudyAreasReady) {
+                        if (!this.StudyAreasInitialized) {
                             var sa = this.studyAreaService.studyAreas;
                             if (Object.keys(sa).length === 0) this.toaster.pop("warning", "Warning", "There are no study areas. First select a scenario.", 5000);
                             for (var key in sa) {

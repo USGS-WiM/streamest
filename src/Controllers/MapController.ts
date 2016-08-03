@@ -256,8 +256,6 @@ module StreamEst.Controllers {
                     case 1: this._mapScale = '295,828,775'; break;
                     case 0: this._mapScale = '591,657,550'; break;
                 }
-
-
             });
 
             if ($stateParams.workspaceID) {
@@ -596,6 +594,10 @@ module StreamEst.Controllers {
             this.startDelineate(latlng);
         }
         private checkPRMSSegment(latlng) {
+            if (this.studyAreaService.getStudyArea(Models.StudyAreaType.e_segment).status == Models.StudyAreaStatus.e_ready) {
+                this.doQueryPRMSSegments = false;
+                return;
+            }
 
             //console.log('in check delineate point');
             //console.log('in query regional layers');
@@ -623,7 +625,6 @@ module StreamEst.Controllers {
                     //});
 
                     maplayers.overlays["PRMS Segments"].identify().on(map).at(latlng).returnGeometry(true).tolerance(5).layers(layerString).run((error: any, results: any) => {
-
                         this.toaster.clear();
                         //console.log('gage query response', results);
 
@@ -641,7 +642,7 @@ module StreamEst.Controllers {
                                 prmsscen.status = Models.ScenarioStatus.e_loaded; 
                             }//end if                                                    
                         });//next feature
-                    sa.status = Models.StudyAreaStatus.e_ready; 
+                    sa.status = Models.StudyAreaStatus.e_initialized; 
                     });
                     this.cursorStyle = 'pointer';
                 });
@@ -787,7 +788,7 @@ module StreamEst.Controllers {
         private removeGeoJson(layerName: string = "", isPartial: boolean = false) {
             var layeridList: Array<string>;
 
-            layeridList = this.getLayerIdsByID(name, this.geojson, isPartial);
+            layeridList = this.getLayerIdsByID(layerName, this.geojson, isPartial);
 
             layeridList.forEach((item) => {
                 //console.log('removing map overlay layer: ', item);
@@ -905,10 +906,12 @@ module StreamEst.Controllers {
                 case Models.StudyAreaType.e_basin:
                     this.addOverlayLayers("Stream Grid", configuration.regions.IA.sgrid);
                     this.doDelineate = true;
+                    if (this.doQueryPRMSSegments) this.doQueryPRMSSegments = false;
                     break;
                 case Models.StudyAreaType.e_segment:
                     this.addOverlayLayers("PRMS Segments", configuration.regions.IA.PRMS);
                     this.doQueryPRMSSegments = true;
+                    if (this.doDelineate) this.doDelineate = false;
                     break;
             }//end switch                       
         }

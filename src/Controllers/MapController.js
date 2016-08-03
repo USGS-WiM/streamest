@@ -504,6 +504,10 @@ var StreamEst;
             };
             MapController.prototype.checkPRMSSegment = function (latlng) {
                 var _this = this;
+                if (this.studyAreaService.getStudyArea(StreamEst.Models.StudyAreaType.e_segment).status == StreamEst.Models.StudyAreaStatus.e_ready) {
+                    this.doQueryPRMSSegments = false;
+                    return;
+                }
                 //console.log('in check delineate point');
                 //console.log('in query regional layers');
                 this.toaster.pop("info", "Information", "Querying PRMS segments...", 0);
@@ -540,7 +544,7 @@ var StreamEst;
                                     prmsscen.status = StreamEst.Models.ScenarioStatus.e_loaded;
                                 } //end if                                                    
                             }); //next feature
-                            sa.status = StreamEst.Models.StudyAreaStatus.e_ready;
+                            sa.status = StreamEst.Models.StudyAreaStatus.e_initialized;
                         });
                         _this.cursorStyle = 'pointer';
                     });
@@ -668,7 +672,7 @@ var StreamEst;
                 if (layerName === void 0) { layerName = ""; }
                 if (isPartial === void 0) { isPartial = false; }
                 var layeridList;
-                layeridList = this.getLayerIdsByID(name, this.geojson, isPartial);
+                layeridList = this.getLayerIdsByID(layerName, this.geojson, isPartial);
                 layeridList.forEach(function (item) {
                     //console.log('removing map overlay layer: ', item);
                     delete _this.geojson[item];
@@ -770,10 +774,14 @@ var StreamEst;
                     case StreamEst.Models.StudyAreaType.e_basin:
                         this.addOverlayLayers("Stream Grid", configuration.regions.IA.sgrid);
                         this.doDelineate = true;
+                        if (this.doQueryPRMSSegments)
+                            this.doQueryPRMSSegments = false;
                         break;
                     case StreamEst.Models.StudyAreaType.e_segment:
                         this.addOverlayLayers("PRMS Segments", configuration.regions.IA.PRMS);
                         this.doQueryPRMSSegments = true;
+                        if (this.doDelineate)
+                            this.doDelineate = false;
                         break;
                 } //end switch                       
             };

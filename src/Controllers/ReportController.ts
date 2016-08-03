@@ -36,6 +36,7 @@ module StreamEst.Controllers {
         getMap(): ng.IPromise<any>;
     }
     interface IReportController {
+        removePRMSsegment(seg: Models.IPRMSSegment)
     }
     interface ICenter {
         lat: number;
@@ -357,7 +358,13 @@ module StreamEst.Controllers {
         public loadScenario(scenarioCode:string) {
             console.log(scenarioCode);
         }
-        
+        public getPRMSRiverName(id: number): string {
+               return this.studyAreaService.prmsNameLookup[id];
+        }
+        public removePRMSsegment(seg: Models.IPRMSSegment) {
+            this.studyAreaService.removePRMSSegment(seg);
+            this.showFeatures();
+        }
         //Helper Methods
         //-+-+-+-+-+-+-+-+-+-+-+-
         private initMap(): void {
@@ -398,7 +405,9 @@ module StreamEst.Controllers {
             this.initMap()
             this.LoadCitations();
         }
-        private loadScenarioFlow(s: Models.IScenario):boolean {
+        private loadScenarioFlow(s: Models.IScenario): boolean {
+            try {
+            
             if (s.status != Models.ScenarioStatus.e_complete && !s.result.hasOwnProperty("EstimatedFlow")) return false
             switch (s.code.toLowerCase()) {
                 case 'fdctm':
@@ -417,6 +426,11 @@ module StreamEst.Controllers {
                     break;
             }//end switch
             return true;
+            }
+            catch (e) {
+                console.log("False due to catch");
+                return false;
+            }
         }
         private LoadCitations() {
             this.citations = Citations;

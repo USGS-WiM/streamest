@@ -41,6 +41,8 @@ module StreamEst.Services {
         verifyScenariosStatus(status: Models.ScenarioStatus): boolean;
         computeScenarios(startDate: Date, endDate: Date): void;
         refreshParameter(parameter: Models.IParameter): void;
+        prmsNameLookup: { [key: number]: string };
+        removePRMSSegment(seg: Models.IPRMSSegment)
     }
     export var onSelectedStudyAreaChanged: string = "onSelectedStudyAreaChanged";
     export var onStudyAreaDoInit: string = "onStudyAreaDoInit";
@@ -61,7 +63,7 @@ module StreamEst.Services {
         //-+-+-+-+-+-+-+-+-+-+-+-
         private eventmanager: WiM.Event.IEventManager;
         private modalservice: Services.IModalService;
-        private prmsNameLookup: { [key: number]: string }
+        public prmsNameLookup: { [key: number]: string }
         private _busyCount: number = 0;
         public get isBusy(): boolean {
             if (this._busyCount > 0) {
@@ -140,7 +142,6 @@ module StreamEst.Services {
         }
         public initializeStudyArea(saType:Models.StudyAreaType): void {
             var sa = <Models.IStatisticStudyArea>this.getStudyArea(saType);
-            sa.status = Models.StudyAreaStatus.e_initialized;
             switch (saType) {
                 case Models.StudyAreaType.e_basin:
 
@@ -161,7 +162,7 @@ module StreamEst.Services {
                                     sa.Features.push(item);
                                 });
                                 
-                                sa.status = Models.StudyAreaStatus.e_ready;
+                                sa.status = Models.StudyAreaStatus.e_initialized;
                             }//end if
                             sa.WorkspaceID = response.data.hasOwnProperty("workspaceID") ? response.data["workspaceID"] : null;
                             //sm when complete
@@ -208,7 +209,7 @@ module StreamEst.Services {
                                         return;
                                     }//end if
                                 });                      
-                                sa.status = Models.StudyAreaStatus.e_ready
+                                sa.status = Models.StudyAreaStatus.e_initialized
                         
                                 //sm when complete
                             }, (error) => {
@@ -247,11 +248,12 @@ module StreamEst.Services {
             var sa = this.studyAreas;
             if (Object.keys(sa).length === 0) return;
             for (var key in sa) {
-                if (sa[key].status != Models.StudyAreaStatus.e_ready) return;
+                if (sa[key].status != Models.StudyAreaStatus.e_initialized) return;
                 if (sa[key].studyAreaType == Models.StudyAreaType.e_basin) this.loadParameters(<Models.IStatisticStudyArea>sa[key]);
                 if (sa[key].studyAreaType == Models.StudyAreaType.e_basin) this.loadReferenceGage(<Models.IStatisticStudyArea>sa[key]);
-                if (sa[key].studyAreaType == Models.StudyAreaType.e_segment && !this.isBusy) this.eventmanager.RaiseEvent(onStudyAreaLoadComplete, this, StudyAreaEventArgs.Empty);
+                if (sa[key].studyAreaType == Models.StudyAreaType.e_segment && !this.isBusy) { sa[key].status = Models.StudyAreaStatus.e_ready; this.eventmanager.RaiseEvent(onStudyAreaLoadComplete, this, StudyAreaEventArgs.Empty); }
             };//next sa
+
         }
         public verifyScenariosStatus(status: Models.ScenarioStatus):boolean{
             var sa = this.studyAreas;
@@ -321,6 +323,14 @@ module StreamEst.Services {
                 }).finally(() => {                
                 });
         }
+        public removePRMSSegment(seg: Models.IPRMSSegment) {
+            var sa = this.getStudyArea(Models.StudyAreaType.e_segment);
+            if (sa == null) return;
+            var segindex = (<Models.PRMSScenario>sa.Scenarios[0]).SelectedSegmentList.indexOf(seg);
+            if (segindex < 0) return;
+            (<Models.PRMSScenario>sa.Scenarios[0]).SelectedSegmentList.splice(segindex, 1);
+            this.eventmanager.RaiseEvent(WiM.Directives.onLayerChanged, this, new WiM.Directives.LegendLayerChangedEventArgs("PRMSSeg_"+seg.RiverID+"."+seg.SegmentID, "visible", false));
+        }
         //Helper Methods
         //-+-+-+-+-+-+-+-+-+-+-+- 
         private init() {
@@ -389,7 +399,7 @@ module StreamEst.Services {
                 }).finally(() => {
                     //raise event
                     this._busyCount--;
-                    if (!this.isBusy) this.eventmanager.RaiseEvent(onStudyAreaLoadComplete, this, StudyAreaEventArgs.Empty);
+                    if (!this.isBusy) { sa.status = Models.StudyAreaStatus.e_ready; this.eventmanager.RaiseEvent(onStudyAreaLoadComplete, this, StudyAreaEventArgs.Empty); }
                 });
         }
         private loadReferenceGage(sa: Models.IStatisticStudyArea) {
@@ -449,7 +459,9 @@ module StreamEst.Services {
                 }).finally(() => {
                     //raise event
                     this._busyCount--;
-                    if (!this.isBusy) this.eventmanager.RaiseEvent(onStudyAreaLoadComplete, this, StudyAreaEventArgs.Empty);
+                    if (!this.isBusy) {
+                        sa.status = Models.StudyAreaStatus.e_ready; this.eventmanager.RaiseEvent(onStudyAreaLoadComplete, this, StudyAreaEventArgs.Empty);
+                    }
                 });
 
             }); 

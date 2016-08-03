@@ -131,7 +131,6 @@ var StreamEst;
             StudyAreaService.prototype.initializeStudyArea = function (saType) {
                 var _this = this;
                 var sa = this.getStudyArea(saType);
-                sa.status = StreamEst.Models.StudyAreaStatus.e_initialized;
                 switch (saType) {
                     case StreamEst.Models.StudyAreaType.e_basin:
                         var url = configuration.baseurls['StreamStatsServices'] + configuration.queryparams['SSdelineation'].format('geojson', sa.RegionID, sa.Pourpoint.Longitude.toString(), sa.Pourpoint.Latitude.toString(), sa.Pourpoint.crs.toString(), false);
@@ -146,7 +145,7 @@ var StreamEst;
                                 response.data["featurecollection"].forEach(function (item) {
                                     sa.Features.push(item);
                                 });
-                                sa.status = StreamEst.Models.StudyAreaStatus.e_ready;
+                                sa.status = StreamEst.Models.StudyAreaStatus.e_initialized;
                             } //end if
                             sa.WorkspaceID = response.data.hasOwnProperty("workspaceID") ? response.data["workspaceID"] : null;
                             //sm when complete
@@ -188,7 +187,7 @@ var StreamEst;
                                         return;
                                     } //end if
                                 });
-                                sa.status = StreamEst.Models.StudyAreaStatus.e_ready;
+                                sa.status = StreamEst.Models.StudyAreaStatus.e_initialized;
                                 //sm when complete
                             }, function (error) {
                                 //sm when error
@@ -226,14 +225,16 @@ var StreamEst;
                 if (Object.keys(sa).length === 0)
                     return;
                 for (var key in sa) {
-                    if (sa[key].status != StreamEst.Models.StudyAreaStatus.e_ready)
+                    if (sa[key].status != StreamEst.Models.StudyAreaStatus.e_initialized)
                         return;
                     if (sa[key].studyAreaType == StreamEst.Models.StudyAreaType.e_basin)
                         this.loadParameters(sa[key]);
                     if (sa[key].studyAreaType == StreamEst.Models.StudyAreaType.e_basin)
                         this.loadReferenceGage(sa[key]);
-                    if (sa[key].studyAreaType == StreamEst.Models.StudyAreaType.e_segment && !this.isBusy)
+                    if (sa[key].studyAreaType == StreamEst.Models.StudyAreaType.e_segment && !this.isBusy) {
+                        sa[key].status = StreamEst.Models.StudyAreaStatus.e_ready;
                         this.eventmanager.RaiseEvent(Services.onStudyAreaLoadComplete, this, StudyAreaEventArgs.Empty);
+                    }
                 }
                 ; //next sa
             };
@@ -316,6 +317,16 @@ var StreamEst;
                 }).finally(function () {
                 });
             };
+            StudyAreaService.prototype.removePRMSSegment = function (seg) {
+                var sa = this.getStudyArea(StreamEst.Models.StudyAreaType.e_segment);
+                if (sa == null)
+                    return;
+                var segindex = sa.Scenarios[0].SelectedSegmentList.indexOf(seg);
+                if (segindex < 0)
+                    return;
+                sa.Scenarios[0].SelectedSegmentList.splice(segindex, 1);
+                this.eventmanager.RaiseEvent(WiM.Directives.onLayerChanged, this, new WiM.Directives.LegendLayerChangedEventArgs("PRMSSeg_" + seg.RiverID + "." + seg.SegmentID, "visible", false));
+            };
             //Helper Methods
             //-+-+-+-+-+-+-+-+-+-+-+- 
             StudyAreaService.prototype.init = function () {
@@ -385,8 +396,10 @@ var StreamEst;
                 }).finally(function () {
                     //raise event
                     _this._busyCount--;
-                    if (!_this.isBusy)
+                    if (!_this.isBusy) {
+                        sa.status = StreamEst.Models.StudyAreaStatus.e_ready;
                         _this.eventmanager.RaiseEvent(Services.onStudyAreaLoadComplete, _this, StudyAreaEventArgs.Empty);
+                    }
                 });
             };
             StudyAreaService.prototype.loadReferenceGage = function (sa) {
@@ -442,8 +455,10 @@ var StreamEst;
                     }).finally(function () {
                         //raise event
                         _this._busyCount--;
-                        if (!_this.isBusy)
+                        if (!_this.isBusy) {
+                            sa.status = StreamEst.Models.StudyAreaStatus.e_ready;
                             _this.eventmanager.RaiseEvent(Services.onStudyAreaLoadComplete, _this, StudyAreaEventArgs.Empty);
+                        }
                     });
                 });
             };
