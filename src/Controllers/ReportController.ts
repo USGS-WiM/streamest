@@ -479,7 +479,10 @@ module StreamEst.Controllers {
                         }
                         else {
                             this.geojson[item.name] = {
-                                data: item.feature
+                                data: item.feature,
+                                onEachFeature: (feature, layer) => {
+                                    layer.bindLabel(item.name, { noHide: true })
+                                }
                             }
                         }
 

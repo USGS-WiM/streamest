@@ -57,13 +57,6 @@
   <ItemGroup>
     <Content Include="gulpfile.js" />
     <Content Include="src\appConfig.js" />
-    <Content Include="src\Assets\images\Animatedkayakers.gif" />
-    <Content Include="src\Assets\images\arrows.gif" />
-    <Content Include="src\Assets\images\multi_sw_act.png" />
-    <Content Include="src\Assets\images\multi_sw_act_blank.png" />
-    <Content Include="src\Assets\images\sw_act_30.png" />
-    <Content Include="src\Assets\images\usgs-logo.png" />
-    <Content Include="src\Assets\images\usgs_logo.png" />
     <Content Include="src\Citations.js" />
     <Content Include="src\css\main.css" />
     <Content Include="src\css\wim.css" />
@@ -82,7 +75,9 @@
     <Content Include="src\Views\navigationview.html" />
     <Content Include="src\Views\reportview.html" />
     <Content Include="src\Views\sidebarview.html" />
-    <Content Include="web.config" />
+    <Content Include="web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="typings.json" />
     <Content Include=".gitattributes" />
     <Content Include=".gitignore" />
@@ -117,6 +112,7 @@
     <TypeScriptCompile Include="src\Models\Timeseries.ts" />
     <TypeScriptCompile Include="src\Models\WatershedEDL.ts" />
     <TypeScriptCompile Include="src\Services\ExplorationService.ts" />
+    <TypeScriptCompile Include="src\Services\NotificationService.ts" />
     <TypeScriptCompile Include="src\Services\ModalService.ts" />
     <TypeScriptCompile Include="src\Services\service.module.ts" />
     <TypeScriptCompile Include="src\Services\StudyAreaService.ts" />

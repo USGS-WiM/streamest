@@ -40,7 +40,6 @@ module StreamEst.Services {
         
         //Properties
         //-+-+-+-+-+-+-+-+-+-+-+-
-        public toaster: any;
         public drawElevationProfile: boolean;
         public drawMeasurement: boolean;
         public elevationProfileGeoJSON: any;
@@ -50,10 +49,8 @@ module StreamEst.Services {
 
         //Constructor
         //-+-+-+-+-+-+-+-+-+-+-+-
-        constructor($http: ng.IHttpService, private $q: ng.IQService, toaster) {
+        constructor($http: ng.IHttpService, private $q: ng.IQService) {
             super($http, configuration.baseurls['StreamStats'])
-
-            this.toaster = toaster;
             this.drawElevationProfile = false;
             this.drawMeasurement = false;
             this.showElevationChart = false;
@@ -99,9 +96,9 @@ module StreamEst.Services {
 
     }//end class
 
-    factory.$inject = ['$http', '$q', 'toaster'];
-    function factory($http: ng.IHttpService, $q: ng.IQService, toaster: any) {
-        return new ExplorationService($http, $q, toaster)
+    factory.$inject = ['$http', '$q'];
+    function factory($http: ng.IHttpService, $q: ng.IQService) {
+        return new ExplorationService($http, $q)
     }
     angular.module('StreamEst.Services')
         .factory('StreamEst.Services.ExplorationService', factory)

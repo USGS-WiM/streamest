@@ -259,9 +259,9 @@
                         <table class="table" title="prmssegments">
                             <tbody ng-repeat="seg in sc.SelectedSegmentList">
                                 <tr>
-                                    <td><strong>{{vm.getPRMSRiverName(seg.RiverID)}}</strong></td>
-                                    <td>Segment: {{seg.SegmentID}}</td>
-                                    <td ng-if="vm.canEdit"><button ng-disabled="sc.SelectedSegmentList.length <= 1" class="btn-wim-default" ng-click="vm.removePRMSsegment(seg)"><i class="fa fa-times area-hidden='true'"></i></button></td>
+                                    <td><strong>PRMS {{vm.getPRMSRiverName(seg.RiverID)}}</strong></td>
+                                    <td>Segment: {{seg.RiverID}}.{{seg.SegmentID}}</td>
+                                    <td ng-if="vm.canEdit"><button title="Click to remove segment." ng-disabled="sc.SelectedSegmentList.length <= 1" class="btn-wim-default" ng-click="vm.removePRMSsegment(seg)"><i class="fa fa-times area-hidden='true'"></i></button></td>
                                 </tr>
                             </tbody>
                         </table>

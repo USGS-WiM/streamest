@@ -26,7 +26,8 @@ var StreamEst;
         var ModalService = (function () {
             //Constructor
             //-+-+-+-+-+-+-+-+-+-+-+-
-            function ModalService($modal) {
+            function ModalService($modal, toaster) {
+                this.toaster = toaster;
                 this.modal = $modal;
             }
             //Methods
@@ -35,6 +36,7 @@ var StreamEst;
                 if (options === void 0) { options = null; }
                 this.modalOptions = options;
                 this.modal.open(this.getModalSettings(mType));
+                this.toaster.pop("info", "open...", 10000);
             };
             //HelperMethods
             //-+-+-+-+-+-+-+-+-+-+-+-
@@ -87,9 +89,9 @@ var StreamEst;
             SSModalType[SSModalType["e_selectstudyarea"] = 3] = "e_selectstudyarea";
         })(Services.SSModalType || (Services.SSModalType = {}));
         var SSModalType = Services.SSModalType;
-        factory.$inject = ['$modal'];
-        function factory($modal) {
-            return new ModalService($modal);
+        factory.$inject = ['$modal', 'toaster'];
+        function factory($modal, toaster) {
+            return new ModalService($modal, toaster);
         }
         angular.module('StreamEst.Services')
             .factory('StreamEst.Services.ModalService', factory);

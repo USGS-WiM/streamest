@@ -525,7 +525,7 @@ var StreamEst;
                         var results = [];
                         for (var responsekey in resultresponse) {
                             var eFlow = new StreamEst.Models.TimeSeries();
-                            eFlow.Name = 'PRMS seg: ' + responsekey + ', ' + _this.prmsNameLookup[key];
+                            eFlow.Name = 'Seg: ' + key + '.' + responsekey + ', PRMS ' + _this.prmsNameLookup[key];
                             eFlow.SeriesDescription = "Estimates computed using Precipitation-Runoff Modeling System.";
                             eFlow.StartDate = scenario.startDate;
                             eFlow.EndDate = scenario.endDate;

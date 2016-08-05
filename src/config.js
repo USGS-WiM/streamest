@@ -42,6 +42,14 @@ var StreamEst;
         config.$inject = ['$stateProvider', '$urlRouterProvider', '$locationProvider', '$logProvider'];
         return config;
     })(); //end class
+    var run = (function () {
+        function run(notificationService) {
+            this.notificationService = notificationService;
+            console.log("got it", this.notificationService);
+        } //end constructor
+        run.$inject = ['StreamEst.Services.NotificationService'];
+        return run;
+    })(); //end class
     angular.module('StreamEst', [
         'ui.router', 'ui.bootstrap', 'ui.checkbox',
         'mobile-angular-ui',
@@ -52,6 +60,7 @@ var StreamEst;
         'StreamEst.Controllers',
         'WiM.Services', 'WiM.Event', 'wim_angular', 'daterangepicker'
     ])
-        .config(config);
+        .config(config)
+        .run(run);
 })(StreamEst || (StreamEst = {})); //end module 
 //# sourceMappingURL=config.js.map

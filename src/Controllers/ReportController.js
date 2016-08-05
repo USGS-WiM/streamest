@@ -418,7 +418,10 @@ var StreamEst;
                             }
                             else {
                                 _this.geojson[item.name] = {
-                                    data: item.feature
+                                    data: item.feature,
+                                    onEachFeature: function (feature, layer) {
+                                        layer.bindLabel(item.name, { noHide: true });
+                                    }
                                 };
                             }
                         });

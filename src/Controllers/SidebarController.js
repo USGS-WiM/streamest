@@ -21,11 +21,10 @@ var StreamEst;
     (function (Controllers) {
         'use strinct';
         var SidebarController = (function () {
-            function SidebarController($scope, toaster, $analytics, service, studyArea, modal, exploration, EventManager) {
+            function SidebarController($scope, $analytics, service, studyArea, modal, exploration, EventManager) {
                 this.EventManager = EventManager;
                 $scope.vm = this;
                 this.init();
-                this.toaster = toaster;
                 this.angulartics = $analytics;
                 this.searchService = service;
                 this.sideBarCollapsed = false;
@@ -154,7 +153,7 @@ var StreamEst;
             };
             SidebarController.prototype.selectScenario = function (scenario) {
                 if (this.isLoadingScenarios) {
-                    this.toaster.pop("warning", "Warning", "Busy Loading parameters.. Please wait.", 5000);
+                    this.sm("Busy Loading parameters.. Please wait.", StreamEst.Services.NotificationType.e_warning, 'Warning');
                     return;
                 }
                 //add to studyarea
@@ -211,30 +210,30 @@ var StreamEst;
                         case ProcedureType.REPORT:
                             //check if scenarios != null;
                             if (this.isLoadingScenarios) {
-                                this.toaster.pop("warning", "Warning", "Loading scenario parameters please wait.", 5000);
+                                this.sm("Loading scenario parameters please wait.", StreamEst.Services.NotificationType.e_warning, "Warning");
                                 return false;
                             }
                             if (!this.ScenariosSelected) {
-                                this.toaster.pop("warning", "Warning", "You must first select a scenario to continue.", 5000);
+                                this.sm("You must first select a scenario to continue.", StreamEst.Services.NotificationType.e_warning, "Warning");
                                 return false;
                             }
                             if (!this.StudyAreasInitialized) {
                                 var sa = this.studyAreaService.studyAreas;
                                 if (Object.keys(sa).length === 0)
-                                    this.toaster.pop("warning", "Warning", "There are no study areas. First select a scenario.", 5000);
+                                    this.sm("There are no study areas. First select a scenario.", StreamEst.Services.NotificationType.e_warning, "Warning");
                                 for (var key in sa) {
                                     if (sa[key].status == StreamEst.Models.StudyAreaStatus.e_empty)
-                                        this.toaster.pop('warning', "Warning", "There is no study area initialized. Select a location to add a study area.", 5000);
+                                        this.sm("There is no study area initialized. Select a location to add a study area.", StreamEst.Services.NotificationType.e_warning, "Warning");
                                     if (sa[key].status == StreamEst.Models.StudyAreaStatus.e_initialized)
-                                        this.toaster.pop('warning', "Warning", "Study area is initialized. Please wait....", 5000);
+                                        this.sm("Study area is initialized. Please wait....", StreamEst.Services.NotificationType.e_warning, "Warning");
                                     if (sa[key].status == StreamEst.Models.StudyAreaStatus.e_error)
-                                        this.toaster.pop('warning', "Warning", "There was an error while initializing the study area. Please try again.", 5000);
+                                        this.sm("There was an error while initializing the study area. Please try again.", StreamEst.Services.NotificationType.e_warning, "Warning");
                                 }
                                 ; //next sa
                                 return false;
                             }
                             if (!this.ScenariosReady) {
-                                this.toaster.pop("warning", "Warning", "You must first load the scenarios to continue.", 5000);
+                                this.sm("You must first load the scenarios to continue.", StreamEst.Services.NotificationType.e_warning, "Warning");
                                 return false;
                             }
                             return true;
@@ -252,12 +251,12 @@ var StreamEst;
                 if (!((this.dateRange.dates.startDate <= this.dateRange.maxDate || this.dateRange.dates.endDate <= this.dateRange.maxDate) &&
                     (this.dateRange.dates.startDate >= this.dateRange.minDate || this.dateRange.dates.endDate >= this.dateRange.minDate) &&
                     (this.dateRange.dates.startDate <= this.dateRange.dates.endDate))) {
-                    this.toaster.pop("error", "Error", "Dates are out of range.", 5000);
+                    this.sm("Dates are out of range.", StreamEst.Services.NotificationType.e_error, "Error", true);
                     return false;
                 }
                 if (!this.studyAreaService.verifyScenariosStatus(StreamEst.Models.ScenarioStatus.e_initialized)) {
                     {
-                        this.toaster.pop("error", "Error", "Scenarios are not initialized.", 5000);
+                        this.sm("Scenarios are not initialized.", StreamEst.Services.NotificationType.e_error, "Error", true);
                         return false;
                     }
                 }
@@ -272,9 +271,22 @@ var StreamEst;
                     return d;
                 }
             };
+            SidebarController.prototype.sm = function (m, t, title, showclosebtn, id, tmout) {
+                if (title === void 0) { title = ""; }
+                if (showclosebtn === void 0) { showclosebtn = false; }
+                if (id === void 0) { id = null; }
+                if (tmout === void 0) { tmout = 5000; }
+                var evntArgs = new StreamEst.Services.NotifictionEventArgs(id, m, t, title, showclosebtn, tmout);
+                this.EventManager.RaiseEvent(StreamEst.Services.onNotify, this, evntArgs);
+            };
+            SidebarController.prototype.clrm = function (id) {
+                if (id === void 0) { id = null; }
+                var evntArgs = new StreamEst.Services.NotifictionEventArgs(id, "");
+                this.EventManager.RaiseEvent(StreamEst.Services.onClearNotifications, this, evntArgs);
+            };
             //Constructor
             //-+-+-+-+-+-+-+-+-+-+-+-
-            SidebarController.$inject = ['$scope', 'toaster', '$analytics', 'WiM.Services.SearchAPIService', 'StreamEst.Services.StudyAreaService', 'StreamEst.Services.ModalService', 'StreamEst.Services.ExplorationService', 'WiM.Event.EventManager'];
+            SidebarController.$inject = ['$scope', '$analytics', 'WiM.Services.SearchAPIService', 'StreamEst.Services.StudyAreaService', 'StreamEst.Services.ModalService', 'StreamEst.Services.ExplorationService', 'WiM.Event.EventManager'];
             return SidebarController;
         })(); //end class
         var ProcedureType;

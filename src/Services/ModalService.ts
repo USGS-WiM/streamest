@@ -48,7 +48,7 @@ module StreamEst.Services {
 
         //Constructor
         //-+-+-+-+-+-+-+-+-+-+-+-
-        constructor($modal: ng.ui.bootstrap.IModalService) {
+        constructor($modal: ng.ui.bootstrap.IModalService, private toaster) {
             this.modal = $modal;
         }
 
@@ -57,6 +57,7 @@ module StreamEst.Services {
         public openModal(mType: SSModalType, options: IModalOptions = null) {            
             this.modalOptions = options
             this.modal.open(this.getModalSettings(mType));
+            this.toaster.pop("info", "open...", 10000);
         }  
 
 
@@ -114,9 +115,9 @@ module StreamEst.Services {
         
     }
 
-    factory.$inject = ['$modal'];
-    function factory($modal: ng.ui.bootstrap.IModalService) {
-        return new ModalService($modal)
+    factory.$inject = ['$modal', 'toaster'];
+    function factory($modal: ng.ui.bootstrap.IModalService, toaster) {
+        return new ModalService($modal, toaster)
     }
     angular.module('StreamEst.Services')
         .factory('StreamEst.Services.ModalService', factory)
