@@ -60,11 +60,10 @@ var StreamEst;
             return MapDefault;
         })();
         var MapController = (function () {
-            function MapController($scope, $compile, $analytics, $location, $stateParams, leafletBoundsHelper, leafletData, search, studyArea, exploration, eventManager, toaster, notify) {
+            function MapController($scope, $compile, $analytics, $location, $stateParams, leafletBoundsHelper, leafletData, search, studyArea, exploration, eventManager, toaster) {
                 var _this = this;
                 this.$scope = $scope;
                 this.toaster = toaster;
-                this.notify = notify;
                 this.center = null;
                 this.layers = null;
                 this.mapDefaults = null;
@@ -120,7 +119,6 @@ var StreamEst;
                         _this.cursorStyle = 'crosshair';
                 });
                 $scope.$on('leafletDirectiveMap.click', function (event, args) {
-                    _this.toaster.pop("info", "Click...", 5000);
                     var even = event;
                     //listen for delineate click if ready
                     if (_this.doDelineate)
@@ -276,9 +274,9 @@ var StreamEst;
                 this.explorationService.allowStreamgageQuery = !this.explorationService.allowStreamgageQuery;
             };
             MapController.prototype.queryStreamgages = function (evt) {
-                //console.log('in query regional layers');
-                //this.toaster.pop("info", "Information", "Querying Streamgages...", 0);
                 var _this = this;
+                //console.log('in query regional layers');
+                this.sm("Querying streamgages, Please wait...", StreamEst.Models.NotificationType.e_wait, "Streamgage Query", true, 321, 0);
                 this.cursorStyle = 'wait';
                 this.markers = {};
                 //report ga event
@@ -288,8 +286,8 @@ var StreamEst;
                         //check to make sure layer is visible
                         if (map.getZoom() <= 8) {
                             _this.cursorStyle = 'pointer';
-                            //this.toaster.clear();
-                            //this.toaster.pop("warning", "Warning", "You must be at Zoom Level 9 or greater to query streamgages", 5000);
+                            _this.clrm(321);
+                            _this.sm("You must be at Zoom Level 9 or greater to query streamgages", StreamEst.Models.NotificationType.e_warning, "Streamgage Query");
                             return;
                         }
                         //get layer to query
@@ -298,11 +296,11 @@ var StreamEst;
                         //    if (item[0].toLowerCase() == "streamgages") layerString = '"' + item[1] + '"';
                         //});
                         maplayers.overlays["SSLayer"].identify().on(map).at(evt.latlng).returnGeometry(false).tolerance(5).layers(layerString).run(function (error, results) {
-                            //this.toaster.clear();
+                            _this.clrm(321);
                             _this.cursorStyle = 'pointer';
                             //console.log('gage query response', results);
                             if (!results.features || results.features.length == 0) {
-                                //this.toaster.pop("warning", "Warning", "No streamgages were found", 5000);
+                                _this.sm("No streamgages wer found", StreamEst.Models.NotificationType.e_info, "Streamgage Query");
                                 return;
                             }
                             results.features.forEach(function (queryResult) {
@@ -326,7 +324,7 @@ var StreamEst;
                                     draggable: false
                                 };
                                 map.panBy([0, 1]);
-                                //this.toaster.clear();
+                                _this.clrm(321);
                             });
                         });
                     });
@@ -364,7 +362,7 @@ var StreamEst;
                             var esriJSON = '{"geometryType":"esriGeometryPolyline","spatialReference":{"wkid":"4326"},"fields": [],"features":[{"geometry": {"type":"polyline", "paths":[' + JSON.stringify(feature.geometry.coordinates) + ']}}]}';
                             //make the request
                             _this.cursorStyle = 'wait';
-                            //this.toaster.pop("info", "Information", "Querying the elevation service...", 0);
+                            _this.sm("Querying the elevation service. Please wait...", StreamEst.Models.NotificationType.e_wait, "Elevation Query", true, 441, 0);
                             _this.explorationService.elevationProfile(esriJSON);
                             //disable button 
                             _this.explorationService.drawElevationProfile = false;
@@ -411,7 +409,7 @@ var StreamEst;
                     document.getElementById('elevation-div').innerHTML = '';
                     document.getElementById('elevation-div').appendChild(container);
                 });
-                //this.toaster.clear();
+                this.clrm(441);
                 this.cursorStyle = 'pointer';
             };
             MapController.prototype.showLocation = function () {
@@ -485,8 +483,11 @@ var StreamEst;
             };
             MapController.prototype.checkDelineatePoint = function (latlng) {
                 //console.log('in check delineate point');
-                //if (this.center.zoom < 15) { this.toaster.pop("warning", "Warning", "Please zoom into at least a zoom level of 15.", 5000); return;}
-                //this.toaster.pop("info", "Information", "Validating your clicked point...", 5000);
+                if (this.center.zoom < 15) {
+                    this.sm("Please zoom to zoom level of 15 to perform this operation.", StreamEst.Models.NotificationType.e_warning);
+                    return;
+                }
+                this.sm("Delineating study area. Please wait.....", StreamEst.Models.NotificationType.e_wait, "", true, 579, 0);
                 this.cursorStyle = 'wait';
                 this.markers = {};
                 //put pourpoint on the map
@@ -509,7 +510,7 @@ var StreamEst;
                 }
                 //console.log('in check delineate point');
                 //console.log('in query regional layers');
-                //this.toaster.pop("info", "Information", "Querying PRMS segments...", 0);
+                this.sm("Querying PRMS segment, Please wait...", StreamEst.Models.NotificationType.e_wait, "Query PRMS segment", true, 603, 0);
                 this.cursorStyle = 'wait';
                 //report ga event
                 this.angulartics.eventTrack('explorationTools', { category: 'Map', label: 'queryStreamgages' });
@@ -519,8 +520,8 @@ var StreamEst;
                             //check to make sure layer is visible
                             if (map.getZoom() <= 8) {
                                 _this.cursorStyle = 'pointer';
-                                //this.toaster.clear();
-                                //this.toaster.pop("warning", "Warning", "You must be at Zoom Level 9 or greater to query streamgages", 5000);
+                                _this.clrm(603);
+                                _this.sm("Please zoom to at least a zoom level of 9 to perform this operation", StreamEst.Models.NotificationType.e_warning, 'Query PRMS segment');
                                 return;
                             }
                             //get layer to query
@@ -529,10 +530,10 @@ var StreamEst;
                             //    if (item[0].toLowerCase() == "streamgages") layerString = '"' + item[1] + '"';
                             //});
                             maplayers.overlays["PRMS Segments"].identify().on(map).at(latlng).returnGeometry(true).tolerance(5).layers(layerString).run(function (error, results) {
-                                //this.toaster.clear();
+                                _this.clrm(603);
                                 //console.log('gage query response', results);
                                 if (!results.features || results.features.length == 0) {
-                                    //this.toaster.pop("warning", "Warning", "No segments were found", 5000);
+                                    _this.sm("No segments were found", StreamEst.Models.NotificationType.e_info, "Query PRMS segment");
                                     return;
                                 }
                                 var sa = _this.studyAreaService.getStudyArea(StreamEst.Models.StudyAreaType.e_segment);
@@ -552,6 +553,7 @@ var StreamEst;
                         }
                         finally {
                             _this.cursorStyle = 'pointer';
+                            _this.clrm(603);
                         }
                     });
                 });
@@ -559,7 +561,7 @@ var StreamEst;
             MapController.prototype.basinEditor = function () {
                 var _this = this;
                 if (this.geojson['globalwatershed'].data.features.length > 1) {
-                    //this.toaster.pop("warning", "Warning", "You cannot edit a global watershed", 5000);
+                    this.sm("You cannot edit a global watershed", StreamEst.Models.NotificationType.e_warning, "Edit Watershed");
                     return;
                 }
                 var basin = angular.fromJson(angular.toJson(this.geojson['globalwatershed'].data.features[0]));
@@ -726,6 +728,17 @@ var StreamEst;
                 sa.Pourpoint = new WiM.Models.Point(latlng.lat, latlng.lng, '4326');
                 this.studyAreaService.initializeStudyArea(StreamEst.Models.StudyAreaType.e_basin);
             };
+            MapController.prototype.sm = function (m, t, title, showclosebtn, id, tmout) {
+                if (title === void 0) { title = ""; }
+                if (showclosebtn === void 0) { showclosebtn = false; }
+                if (id === void 0) { id = null; }
+                if (tmout === void 0) { tmout = 5000; }
+                this.toaster.pop(new StreamEst.Models.Notification(m, t, title, showclosebtn, tmout, id));
+            };
+            MapController.prototype.clrm = function (id) {
+                if (id === void 0) { id = null; }
+                this.toaster.clear();
+            };
             MapController.prototype.onSelectedStudyAreaChanged = function (sender, e) {
                 var _this = this;
                 //console.log('in onSelectedStudyAreaChanged');
@@ -740,6 +753,7 @@ var StreamEst;
                 this.leafletData.getMap().then(function (map) {
                     map.fitBounds([[bbox[1], bbox[0]], [bbox[3], bbox[2]]], {});
                 });
+                this.clrm();
             };
             MapController.prototype.onSelectedAreaOfInterestChanged = function (sender, e) {
                 //ga event
@@ -796,7 +810,7 @@ var StreamEst;
             };
             //Constructor
             //-+-+-+-+-+-+-+-+-+-+-+-
-            MapController.$inject = ['$scope', '$compile', '$analytics', '$location', '$stateParams', 'leafletBoundsHelpers', 'leafletData', 'WiM.Services.SearchAPIService', 'StreamEst.Services.StudyAreaService', 'StreamEst.Services.ExplorationService', 'WiM.Event.EventManager', 'toaster', 'StreamEst.Services.NotificationService'];
+            MapController.$inject = ['$scope', '$compile', '$analytics', '$location', '$stateParams', 'leafletBoundsHelpers', 'leafletData', 'WiM.Services.SearchAPIService', 'StreamEst.Services.StudyAreaService', 'StreamEst.Services.ExplorationService', 'WiM.Event.EventManager', 'toaster'];
             return MapController;
         })(); //end class
         angular.module('StreamEst.Controllers')

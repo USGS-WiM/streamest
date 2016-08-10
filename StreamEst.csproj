@@ -105,6 +105,7 @@
     <TypeScriptCompile Include="src\Controllers\ReportController.ts" />
     <TypeScriptCompile Include="src\Controllers\SidebarController.ts" />
     <TypeScriptCompile Include="src\Models\Citation.ts" />
+    <TypeScriptCompile Include="src\Models\Notification.ts" />
     <TypeScriptCompile Include="src\Models\Parameter.ts" />
     <TypeScriptCompile Include="src\Models\ReferenceGage.ts" />
     <TypeScriptCompile Include="src\Models\Scenario.ts" />
@@ -112,7 +113,6 @@
     <TypeScriptCompile Include="src\Models\Timeseries.ts" />
     <TypeScriptCompile Include="src\Models\WatershedEDL.ts" />
     <TypeScriptCompile Include="src\Services\ExplorationService.ts" />
-    <TypeScriptCompile Include="src\Services\NotificationService.ts" />
     <TypeScriptCompile Include="src\Services\ModalService.ts" />
     <TypeScriptCompile Include="src\Services\service.module.ts" />
     <TypeScriptCompile Include="src\Services\StudyAreaService.ts" />
