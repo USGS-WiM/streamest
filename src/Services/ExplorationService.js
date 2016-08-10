@@ -31,10 +31,9 @@ var StreamEst;
             __extends(ExplorationService, _super);
             //Constructor
             //-+-+-+-+-+-+-+-+-+-+-+-
-            function ExplorationService($http, $q, toaster) {
+            function ExplorationService($http, $q) {
                 _super.call(this, $http, configuration.baseurls['StreamStats']);
                 this.$q = $q;
-                this.toaster = toaster;
                 this.drawElevationProfile = false;
                 this.drawMeasurement = false;
                 this.showElevationChart = false;
@@ -67,9 +66,9 @@ var StreamEst;
             };
             return ExplorationService;
         })(WiM.Services.HTTPServiceBase); //end class
-        factory.$inject = ['$http', '$q', 'toaster'];
-        function factory($http, $q, toaster) {
-            return new ExplorationService($http, $q, toaster);
+        factory.$inject = ['$http', '$q'];
+        function factory($http, $q) {
+            return new ExplorationService($http, $q);
         }
         angular.module('StreamEst.Services')
             .factory('StreamEst.Services.ExplorationService', factory);

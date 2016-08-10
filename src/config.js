@@ -42,6 +42,12 @@ var StreamEst;
         config.$inject = ['$stateProvider', '$urlRouterProvider', '$locationProvider', '$logProvider'];
         return config;
     })(); //end class
+    //class run {
+    //    static $inject = ['StreamEst.Services.NotificationService'];
+    //    constructor(private notificationService: Services.INotificationService) {
+    //        console.log("got it", this.notificationService)
+    //    }//end constructor
+    //}//end class
     angular.module('StreamEst', [
         'ui.router', 'ui.bootstrap', 'ui.checkbox',
         'mobile-angular-ui',

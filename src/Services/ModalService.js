@@ -33,9 +33,7 @@ var StreamEst;
             //-+-+-+-+-+-+-+-+-+-+-+-
             ModalService.prototype.openModal = function (mType, options) {
                 if (options === void 0) { options = null; }
-                if (options) {
-                    this.modalOptions = options;
-                }
+                this.modalOptions = options;
                 this.modal.open(this.getModalSettings(mType));
             };
             //HelperMethods

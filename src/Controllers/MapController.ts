@@ -154,7 +154,6 @@ module StreamEst.Controllers {
         public layercontrol: Object = null;
         public regionLayer: Object = null;
         public drawControl: any;
-        public toaster: any;
         public angulartics: any;
         public doDelineate: boolean = false;
         public doQueryPRMSSegments: boolean = false;
@@ -165,12 +164,11 @@ module StreamEst.Controllers {
 
         //Constructor
         //-+-+-+-+-+-+-+-+-+-+-+-
-        static $inject = ['$scope', '$compile','toaster', '$analytics', '$location', '$stateParams', 'leafletBoundsHelpers', 'leafletData', 'WiM.Services.SearchAPIService', 'StreamEst.Services.StudyAreaService', 'StreamEst.Services.ExplorationService','WiM.Event.EventManager'];
-        constructor(public $scope: IMapControllerScope, $compile, toaster, $analytics, $location: ng.ILocationService, $stateParams, leafletBoundsHelper: any, leafletData: ILeafletData, search: WiM.Services.ISearchAPIService, studyArea: Services.IStudyAreaService, exploration: Services.IExplorationService, eventManager:WiM.Event.IEventManager) {
+        static $inject = ['$scope', '$compile', '$analytics', '$location', '$stateParams', 'leafletBoundsHelpers', 'leafletData', 'WiM.Services.SearchAPIService', 'StreamEst.Services.StudyAreaService', 'StreamEst.Services.ExplorationService', 'WiM.Event.EventManager','toaster'];
+        constructor(public $scope: IMapControllerScope, $compile, $analytics, $location: ng.ILocationService, $stateParams, leafletBoundsHelper: any, leafletData: ILeafletData, search: WiM.Services.ISearchAPIService, studyArea: Services.IStudyAreaService, exploration: Services.IExplorationService, eventManager:WiM.Event.IEventManager, private toaster) {
             $scope.vm = this;
             this.init();
             this.$compile = $compile;
-            this.toaster = toaster;
             this.angulartics = $analytics;
             this.searchService = search;
             this.$locationService = $location;
@@ -256,8 +254,6 @@ module StreamEst.Controllers {
                     case 1: this._mapScale = '295,828,775'; break;
                     case 0: this._mapScale = '591,657,550'; break;
                 }
-
-
             });
 
             if ($stateParams.workspaceID) {
@@ -328,7 +324,8 @@ module StreamEst.Controllers {
         private queryStreamgages(evt) {
 
             //console.log('in query regional layers');
-            this.toaster.pop("info", "Information", "Querying Streamgages...", 0);
+            this.sm("Querying streamgages, Please wait...", Models.NotificationType.e_wait, "Streamgage Query", true, 321, 0);
+            
             this.cursorStyle = 'wait';
             this.markers = {};
 
@@ -341,8 +338,8 @@ module StreamEst.Controllers {
                     //check to make sure layer is visible
                     if (map.getZoom() <= 8) {
                         this.cursorStyle = 'pointer';
-                        this.toaster.clear();
-                        this.toaster.pop("warning", "Warning", "You must be at Zoom Level 9 or greater to query streamgages", 5000);
+                        this.clrm(321);
+                        this.sm("You must be at Zoom Level 9 or greater to query streamgages", Models.NotificationType.e_warning, "Streamgage Query");
                         return;
                     }
 
@@ -354,12 +351,12 @@ module StreamEst.Controllers {
 
                     maplayers.overlays["SSLayer"].identify().on(map).at(evt.latlng).returnGeometry(false).tolerance(5).layers(layerString).run((error: any, results: any) => {
 
-                        this.toaster.clear();
+                        this.clrm(321);
                         this.cursorStyle = 'pointer';
                         //console.log('gage query response', results);
 
                         if (!results.features || results.features.length == 0) {
-                            this.toaster.pop("warning", "Warning", "No streamgages were found", 5000);
+                            this.sm("No streamgages wer found", Models.NotificationType.e_info, "Streamgage Query");
                             return;
                         }
 
@@ -390,7 +387,7 @@ module StreamEst.Controllers {
                             };
 
                             map.panBy([0, 1]);
-                            this.toaster.clear();
+                            this.clrm(321);
 
                         });
                     });
@@ -441,7 +438,7 @@ module StreamEst.Controllers {
 
                         //make the request
                         this.cursorStyle = 'wait'
-                        this.toaster.pop("info", "Information", "Querying the elevation service...", 0);
+                        this.sm("Querying the elevation service. Please wait...", Models.NotificationType.e_wait, "Elevation Query", true, 441, 0);
                         this.explorationService.elevationProfile(esriJSON)
 
                         //disable button 
@@ -493,7 +490,7 @@ module StreamEst.Controllers {
                 document.getElementById('elevation-div').appendChild(container);
             });
 
-            this.toaster.clear();
+            this.clrm(441);
             this.cursorStyle = 'pointer'
         }
         private showLocation() {
@@ -578,8 +575,8 @@ module StreamEst.Controllers {
         private checkDelineatePoint(latlng) {
 
             //console.log('in check delineate point');
-            if (this.center.zoom < 15) { this.toaster.pop("warning", "Warning", "Please zoom into at least a zoom level of 15.", 5000); return;}
-            this.toaster.pop("info", "Information", "Validating your clicked point...", 5000);
+            if (this.center.zoom < 15) {this.sm("Please zoom to zoom level of 15 to perform this operation.", Models.NotificationType.e_warning); return;}
+            this.sm("Delineating study area. Please wait.....", Models.NotificationType.e_wait, "", true, 579, 0);
             this.cursorStyle = 'wait';
             this.markers = {};
 
@@ -596,62 +593,75 @@ module StreamEst.Controllers {
             this.startDelineate(latlng);
         }
         private checkPRMSSegment(latlng) {
+            if (this.studyAreaService.getStudyArea(Models.StudyAreaType.e_segment).status == Models.StudyAreaStatus.e_ready) {
+                this.doQueryPRMSSegments = false;
+                return;
+            }
 
             //console.log('in check delineate point');
             //console.log('in query regional layers');
-            this.toaster.pop("info", "Information", "Querying PRMS segments...", 0);
+            this.sm("Querying PRMS segment, Please wait...", Models.NotificationType.e_wait, "Query PRMS segment", true, 603, 0);
             this.cursorStyle = 'wait';          
 
             //report ga event
             this.angulartics.eventTrack('explorationTools', { category: 'Map', label: 'queryStreamgages' });
+            
 
-            this.leafletData.getMap().then((map: any) => {
-                this.leafletData.getLayers().then((maplayers: any) => {
+                this.leafletData.getMap().then((map: any) => {
+                    this.leafletData.getLayers().then((maplayers: any) => {
+                        try {
+                            //check to make sure layer is visible
+                            if (map.getZoom() <= 8) {
+                                this.cursorStyle = 'pointer';
+                                this.clrm(603);
+                                this.sm("Please zoom to at least a zoom level of 9 to perform this operation", Models.NotificationType.e_warning, 'Query PRMS segment');
+                             
+                                return;
+                            }
 
-                    //check to make sure layer is visible
-                    if (map.getZoom() <= 8) {
-                        this.cursorStyle = 'pointer';
-                        this.toaster.clear();
-                        this.toaster.pop("warning", "Warning", "You must be at Zoom Level 9 or greater to query streamgages", 5000);
-                        return;
-                    }
+                            //get layer to query
+                            var layerString;
+                            //this.regionServices.nationalMapLayerList.forEach((item) => {
+                            //    if (item[0].toLowerCase() == "streamgages") layerString = '"' + item[1] + '"';
+                            //});
 
-                    //get layer to query
-                    var layerString;
-                    //this.regionServices.nationalMapLayerList.forEach((item) => {
-                    //    if (item[0].toLowerCase() == "streamgages") layerString = '"' + item[1] + '"';
-                    //});
+                            maplayers.overlays["PRMS Segments"].identify().on(map).at(latlng).returnGeometry(true).tolerance(5).layers(layerString).run((error: any, results: any) => {
+                                this.clrm(603);
+                                //console.log('gage query response', results);
 
-                    maplayers.overlays["PRMS Segments"].identify().on(map).at(latlng).returnGeometry(true).tolerance(5).layers(layerString).run((error: any, results: any) => {
+                                if (!results.features || results.features.length == 0) {
+                                    this.sm("No segments were found", Models.NotificationType.e_info, "Query PRMS segment");
+                                    return;
+                                }
+                                var sa: Models.SegmentStudyArea = <Models.SegmentStudyArea>this.studyAreaService.getStudyArea(Models.StudyAreaType.e_segment);
 
-                        this.toaster.clear();
-                        //console.log('gage query response', results);
-
-                        if (!results.features || results.features.length == 0) {
-                            this.toaster.pop("warning", "Warning", "No segments were found", 5000);
-                            return;
+                                results.features.forEach((queryResult) => {
+                                    var prmsscen = sa.Scenarios[0];
+                                    if (queryResult.geometry.type === 'LineString') {
+                                        prmsscen.SelectedSegmentList.push({ SegmentID: queryResult.id, RiverID: queryResult.layerId, feature: queryResult.geometry })
+                                        this.addGeoJSON("PRMSSeg_" + queryResult.layerId + "." + queryResult.id, queryResult.geometry);
+                                        prmsscen.status = Models.ScenarioStatus.e_loaded;
+                                    }//end if                                                    
+                                });//next feature
+                                sa.status = Models.StudyAreaStatus.e_initialized;
+                            });
+                            
                         }
-                        var sa: Models.SegmentStudyArea = <Models.SegmentStudyArea>this.studyAreaService.getStudyArea(Models.StudyAreaType.e_segment);
-
-                        results.features.forEach((queryResult) => {                           
-                            var prmsscen = sa.Scenarios[0];
-                            if (queryResult.geometry.type === 'LineString') {
-                                prmsscen.SelectedSegmentList.push({ SegmentID: queryResult.id, RiverName: queryResult.layerId, feature: queryResult.geometry })
-                                this.addGeoJSON("PRMSSeg_" + queryResult.layerId + "." + queryResult.id, queryResult.geometry);                                                             
-                                prmsscen.status = Models.ScenarioStatus.e_complete; 
-                            }//end if                                                    
-                        });//next feature
-                    sa.status = Models.StudyAreaStatus.e_ready; 
+                        catch (e) {
+                            console.log('error', e)
+                        }
+                        finally {
+                            this.cursorStyle = 'pointer';
+                            this.clrm(603);
+                        }
                     });
-                    this.cursorStyle = 'pointer';
                 });
-            });
             
         }
         private basinEditor() {
 
             if (this.geojson['globalwatershed'].data.features.length > 1) {
-                this.toaster.pop("warning", "Warning", "You cannot edit a global watershed", 5000);
+                this.sm("You cannot edit a global watershed", Models.NotificationType.e_warning,"Edit Watershed");
                 return;
             }
 
@@ -778,7 +788,10 @@ module StreamEst.Controllers {
             else {
                 this.geojson[LayerName] =
                 {
-                    data: feature
+                    data: feature,
+                    onEachFeature: (feature, layer) => {
+                        layer.bindLabel(LayerName, { noHide: true })
+                    }
                 }
             }
 
@@ -787,7 +800,7 @@ module StreamEst.Controllers {
         private removeGeoJson(layerName: string = "", isPartial: boolean = false) {
             var layeridList: Array<string>;
 
-            layeridList = this.getLayerIdsByID(name, this.geojson, isPartial);
+            layeridList = this.getLayerIdsByID(layerName, this.geojson, isPartial);
 
             layeridList.forEach((item) => {
                 //console.log('removing map overlay layer: ', item);
@@ -837,6 +850,13 @@ module StreamEst.Controllers {
             this.studyAreaService.initializeStudyArea(Models.StudyAreaType.e_basin);
         }
 
+        private sm(m: string, t: Models.NotificationType, title: string = "", showclosebtn: boolean = false, id: number = null, tmout: number = 5000) {
+            this.toaster.pop(new Models.Notification(m, t, title, showclosebtn, tmout, id));
+        }
+        private clrm(id: number = null) {
+            this.toaster.clear();
+        }
+
         private onSelectedStudyAreaChanged(sender: any, e: Services.StudyAreaEventArgs) {
 
             //console.log('in onSelectedStudyAreaChanged');
@@ -854,7 +874,7 @@ module StreamEst.Controllers {
                 map.fitBounds([[bbox[1], bbox[0]], [bbox[3], bbox[2]]], {
                 });
             });
-
+            this.clrm();
 
         }
         private onSelectedAreaOfInterestChanged(sender: any, e: WiM.Services.SearchAPIEventArgs) {
@@ -905,13 +925,16 @@ module StreamEst.Controllers {
                 case Models.StudyAreaType.e_basin:
                     this.addOverlayLayers("Stream Grid", configuration.regions.IA.sgrid);
                     this.doDelineate = true;
+                    if (this.doQueryPRMSSegments) this.doQueryPRMSSegments = false;
                     break;
                 case Models.StudyAreaType.e_segment:
                     this.addOverlayLayers("PRMS Segments", configuration.regions.IA.PRMS);
                     this.doQueryPRMSSegments = true;
+                    if (this.doDelineate) this.doDelineate = false;
                     break;
             }//end switch                       
         }
+
     }//end class
 
     angular.module('StreamEst.Controllers')

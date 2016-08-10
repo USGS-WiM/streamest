@@ -1,0 +1,119 @@
+<div class="scrollable sidebar-content">
+    <div class="scrollable-content">
+        <div class="list-group">
+            <div id="search" class="sidebar-item">
+                    <a ng-class="vm.selectedProcedure == 1  ? 'list-group-item-active': 'list-group-item'" ng-click="vm.setProcedureType(1)">Search<div></div><h5 ng-show="vm.regionService.selectedRegion.Name"><strong>{{vm.regionService.selectedRegion.Name}}</strong><i ng-click="vm.openStatePage($event, vm.regionService.selectedRegion.Name)" class="fa fa-info-circle"></i></h5><i ng-class="vm.selectedProcedure == 1 ? 'fa fa-chevron-right pull-right': 'fa fa-chevron-down pull-right'"></i></a>
+                    <div class="list-group-body" ng-hide="vm.selectedProcedure != 1">
+                        <div class="group-wrapper" ng-show="vm.regionService.selectedRegion">
+                            <button class="btn-wim-sm btn-wim-success btn-wim-group-1" ng-click="vm.regionService.resetView = !vm.regionService.resetView"><span><i class="fa fa-undo"></i>&nbsp;&nbsp;Start Over</span></button>
+                        </div>
+
+                        <div id="searchWrapper">
+                            <div class="wim-alert">Use the map or the search tool to zoom to an area of interest</div>
+
+                            <div class="row">
+                                <div class="col-md-9">
+
+                                    <div class="input-group">
+                                        <div id="sapi_searchTextBoxDiv">Loading Search Bar...</div>
+                                        <span class="input-group-btn">
+                                            <button id="searchSubmit" class="btn-wim-sm btn-wim-success" type="button" ng-click="vm.startSearch($event)">Go!</button>
+                                        </span>
+                                    </div><!-- /input-group -->
+                                </div>
+                                <div class="col-md-2"><button class="btn-wim-sm btn-wim-info" ng-click="vm.showSearchHelp = !vm.showSearchHelp"><i class="fa fa-question-circle"></i></button></div>
+                            </div>
+                            <div ng-init="vm.showSearchHelp = false" ng-show="vm.showSearchHelp">
+                                <div class="wim-alert">
+                                    <h6 class="wim-list-header">Supported search strings:</h6>
+                                    <p>Use 'enter' key or "Go!" button to submit</p>
+                                    <ul>
+                                        <li>GNIS locations</li>
+                                        <li>USGS Sites</li>
+                                        <li>Zip Codes</li>
+                                        <li>Area Codes</li>
+                                        <li>States</li>
+                                        <li>Lat/Long (ie. '43.9,-72.1')</li>
+                                        <li>Street Address</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>            
+            <div id="scenario" class="sidebar-item">
+            <a ng-class="vm.selectedProcedure == 2  ? 'list-group-item-active': 'list-group-item'" ng-click="vm.setProcedureType(2)">
+                Select Scenarios<i ng-class="vm.selectedProcedure == 2 ? 'fa fa-chevron-right pull-right': 'fa fa-chevron-down pull-right'"></i></a>
+
+            <div class="list-group-body" ng-show="vm.selectedProcedure == 2">
+
+                <div class="wim-alert">Select one or more scenarios below, then click the "Load Scenarios" button to proceed.</div>
+                <!-- Statistical Scenarios -->
+                <div class="well well-sm">
+                    <div class="row">
+                        <div class="col-md-7 col-md-offset-1"><h6>Statistically Based Scenarios</h6></div>
+                        <div class="col-md-3 "><button class="btn-wim-sm btn-wim-info" ng-click="vm.showScenarioHelp = !vm.showScenarioHelp"><i class="fa fa-question-circle"></i></button></div>
+                    </div>
+
+                    <div ng-init="vm.showScenarioHelp = false" ng-show="vm.showScenarioHelp">
+                        <div class="wim-alert">Toggling these scenario buttons adds them to this session and includes them </div>
+                    </div>
+
+                    <div class="group-wrapper" ng-repeat="scenario in vm.AvailableScenarios | filter:{type:1}">
+                        <button class="btn-wim-sm btn-wim-group-1" ng-class="vm.StudyAreaContainsScenario(2, scenario)? 'btn-wim-info':'btn-wim-default'" ng-click="vm.selectScenario(scenario)"><span>{{scenario.name}} </span></button>
+                    </div>
+                    <a ng-click="vm.resetStudyArea(2)" class="pull-right">Reset</a>
+                </div>
+
+                <!-- Physical Scenarios -->
+                <div class="well well-sm">
+                    <div class="row">
+                        <div class="col-md-7 col-md-offset-1"><h6>Physically Based Scenarios</h6></div>
+                        <div class="col-md-3 "><button class="btn-wim-sm btn-wim-info" ng-click="vm.showScenarioHelp = !vm.showScenarioHelp"><i class="fa fa-question-circle"></i></button></div>
+                    </div>
+
+                    <div ng-init="vm.showScenarioHelp = false" ng-show="vm.showScenarioHelp">
+                        <div class="wim-alert">Toggling these scenario buttons adds them to this session and includes them </div>
+                    </div>
+                    <div class="group-wrapper" ng-repeat="scenario in vm.AvailableScenarios | filter:{type:2}">
+                        <button class="btn-wim-sm btn-wim-group-1" ng-class="vm.StudyAreaContainsScenario(1, scenario)? 'btn-wim-info':'btn-wim-default'" ng-click="vm.selectScenario(scenario)"><span>{{scenario.name}} </span></button>
+                    </div>
+                    <a ng-click="vm.resetStudyArea(1)" class="pull-right">Reset</a>
+                </div>
+
+                <div class="group-wrapper">
+                    <button type="button" class="btn-wim-sm btn-wim-success btn-wim-group-1" ng-click="vm.loadSelectedScenarios()"
+                            ng-disabled="!vm.ScenariosSelected || !vm.StudyAreasInitialized|| isLoadingScenarios">
+                        <i ng-class="vm.isLoadingScenarios ? 'fa fa-refresh fa-spin' : ''"></i><span>&nbsp;&nbsp;Load Scenarios</span>
+                    </button>
+                </div>
+            </div>
+        </div>            
+            <div id="report" class="sidebar-item">
+            <a ng-class="vm.selectedProcedure == 4 ? 'list-group-item-active': 'list-group-item'" ng-click="vm.setProcedureType(4)">Build a Report<h5 ng-show="vm.studyAreaService.reportGenerated"><strong>Report Built</strong></h5><i ng-class="vm.selectedProcedure == 4 ? 'fa fa-chevron-right pull-right': 'fa fa-chevron-down pull-right'"></i></a>
+
+            <div class="list-group-body" ng-show="vm.selectedProcedure == 4">
+                <div class="wim-alert">You can modify/view the computed parameters by selecting the modify/show parameters button below.</div>
+
+                <div class="group-wrapper">
+                    <button class="btn-wim-sm btn-wim-default btn-wim-group-1" 
+                            ng-click="vm.showEditableReport()"><span>
+                        &nbsp;&nbsp;Show/Modify Parameters</span></button>
+                </div>
+                <!-- https://github.com/fragaria/angular-daterangepicker -->
+                <div class="wim-alert">Select/Enter a date range then select compute flow report button below to show the report.</div>
+                <input date-range-picker class="form-control date-picker" type="text" ng-model="vm.dateRange.dates" min="vm.dateRange.minDate" max="vm.dateRange.maxDate" options="{locale: {format: 'MMMM D, YYYY'}}"  />
+                <br />
+                <div class="group-wrapper">
+                    <button type="button" class="btn-wim-sm btn-wim-success btn-wim-group-1" ng-click="vm.generateReport()">
+                        <span>&nbsp;&nbsp;Compute flow report</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+        </div>
+        <div class="identification pull-right">powered by <a href="http://wim.usgs.gov/" target="_blank">WiM</a></div>
+    </div>
+</div>

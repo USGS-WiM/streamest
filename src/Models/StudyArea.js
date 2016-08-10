@@ -68,7 +68,8 @@ var StreamEst;
                     var featurelist = [];
                     for (var i = 0; i < this.Scenarios.length; i++) {
                         for (var j = 0; j < this.Scenarios[i].SelectedSegmentList.length; j++) {
-                            featurelist.push({ name: "PRMS_seg_" + i + "." + j, feature: this.Scenarios[i].SelectedSegmentList[j].feature });
+                            var seg = this.Scenarios[i].SelectedSegmentList[j];
+                            featurelist.push({ name: "PRMSSeg_" + seg.RiverID + "." + seg.SegmentID, feature: seg.feature });
                         } //next j
                     } //next i
                     return featurelist;
@@ -88,7 +89,7 @@ var StreamEst;
             StudyAreaStatus[StudyAreaStatus["e_empty"] = 0] = "e_empty";
             StudyAreaStatus[StudyAreaStatus["e_initialized"] = 1] = "e_initialized";
             StudyAreaStatus[StudyAreaStatus["e_ready"] = 2] = "e_ready";
-            StudyAreaStatus[StudyAreaStatus["e_error"] = 3] = "e_error";
+            StudyAreaStatus[StudyAreaStatus["e_error"] = -1] = "e_error";
         })(Models.StudyAreaStatus || (Models.StudyAreaStatus = {}));
         var StudyAreaStatus = Models.StudyAreaStatus;
     })(Models = StreamEst.Models || (StreamEst.Models = {}));

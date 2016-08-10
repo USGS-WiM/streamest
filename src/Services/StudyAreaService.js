@@ -53,6 +53,7 @@ var StreamEst;
                 this._studyAreas = {};
                 this.eventmanager = eventManager;
                 this.modalservice = modal;
+                this.init();
                 eventManager.AddEvent(Services.onSelectedStudyAreaChanged);
                 eventManager.AddEvent(Services.onStudyAreaRemoved);
                 eventManager.AddEvent(Services.onStudyAreaLoadComplete);
@@ -130,7 +131,6 @@ var StreamEst;
             StudyAreaService.prototype.initializeStudyArea = function (saType) {
                 var _this = this;
                 var sa = this.getStudyArea(saType);
-                sa.status = StreamEst.Models.StudyAreaStatus.e_initialized;
                 switch (saType) {
                     case StreamEst.Models.StudyAreaType.e_basin:
                         var url = configuration.baseurls['StreamStatsServices'] + configuration.queryparams['SSdelineation'].format('geojson', sa.RegionID, sa.Pourpoint.Longitude.toString(), sa.Pourpoint.Latitude.toString(), sa.Pourpoint.crs.toString(), false);
@@ -145,7 +145,7 @@ var StreamEst;
                                 response.data["featurecollection"].forEach(function (item) {
                                     sa.Features.push(item);
                                 });
-                                sa.status = StreamEst.Models.StudyAreaStatus.e_ready;
+                                sa.status = StreamEst.Models.StudyAreaStatus.e_initialized;
                             } //end if
                             sa.WorkspaceID = response.data.hasOwnProperty("workspaceID") ? response.data["workspaceID"] : null;
                             //sm when complete
@@ -187,7 +187,7 @@ var StreamEst;
                                         return;
                                     } //end if
                                 });
-                                sa.status = StreamEst.Models.StudyAreaStatus.e_ready;
+                                sa.status = StreamEst.Models.StudyAreaStatus.e_initialized;
                                 //sm when complete
                             }, function (error) {
                                 //sm when error
@@ -225,14 +225,16 @@ var StreamEst;
                 if (Object.keys(sa).length === 0)
                     return;
                 for (var key in sa) {
-                    if (sa[key].status != StreamEst.Models.StudyAreaStatus.e_ready)
+                    if (sa[key].status != StreamEst.Models.StudyAreaStatus.e_initialized)
                         return;
                     if (sa[key].studyAreaType == StreamEst.Models.StudyAreaType.e_basin)
                         this.loadParameters(sa[key]);
                     if (sa[key].studyAreaType == StreamEst.Models.StudyAreaType.e_basin)
                         this.loadReferenceGage(sa[key]);
-                    if (sa[key].studyAreaType == StreamEst.Models.StudyAreaType.e_segment && !this.isBusy)
+                    if (sa[key].studyAreaType == StreamEst.Models.StudyAreaType.e_segment && !this.isBusy) {
+                        sa[key].status = StreamEst.Models.StudyAreaStatus.e_ready;
                         this.eventmanager.RaiseEvent(Services.onStudyAreaLoadComplete, this, StudyAreaEventArgs.Empty);
+                    }
                 }
                 ; //next sa
             };
@@ -275,8 +277,61 @@ var StreamEst;
                 }
                 ; //next sa
             };
+            StudyAreaService.prototype.refreshParameter = function (parameter) {
+                //get all params for scenario
+                var sa = this.getStudyArea(StreamEst.Models.StudyAreaType.e_basin);
+                var Paramindex = sa.computedParametersList.indexOf(parameter);
+                var url = configuration.baseurls['StreamStatsServices'] + configuration.queryparams['SSComputeParams'].format(sa.RegionID, sa.WorkspaceID, parameter.code);
+                var request = new WiM.Services.Helpers.RequestInfo(url, true);
+                this.Execute(request).then(function (response) {
+                    //console.log('delineation response headers: ', response.headers());                    
+                    if (response.data.hasOwnProperty("messages"))
+                        sa.Disclaimers["ParameterMessages"] = response.data.messages;
+                    if (response.data.hasOwnProperty("parameters")) {
+                        //load sa
+                        var responsevalue = response.data.parameters.map(function (rParam) { return new StreamEst.Models.Parameter(rParam.name, rParam.code, rParam.description, rParam.unit, rParam.value); });
+                        if (Paramindex < 0)
+                            return;
+                        sa.computedParametersList[Paramindex].value = responsevalue[0].value;
+                        sa.computedParametersList[Paramindex]['isbusy'] = false;
+                        sa.Scenarios.forEach(function (scenario) {
+                            if (scenario.hasOwnProperty("Parameters")) {
+                                for (var p = 0; p < scenario["Parameters"].length; p++) {
+                                    var param = scenario["Parameters"][p];
+                                    for (var i = 0; i < response.data.parameters.length; i++) {
+                                        var pr = response.data.parameters[i];
+                                        if (pr.code.toUpperCase() === param.code.toUpperCase()) {
+                                            param.value = pr.value;
+                                            break;
+                                        } //end if
+                                    } //next i
+                                }
+                                ; //next p
+                            } //end if                           
+                        }); //next scenario
+                    } //end if 
+                    //sm when complete
+                }, function (error) {
+                    sa.status = StreamEst.Models.StudyAreaStatus.e_error;
+                    sa.Disclaimers["error"] = "Delineation Error";
+                }).finally(function () {
+                });
+            };
+            StudyAreaService.prototype.removePRMSSegment = function (seg) {
+                var sa = this.getStudyArea(StreamEst.Models.StudyAreaType.e_segment);
+                if (sa == null)
+                    return;
+                var segindex = sa.Scenarios[0].SelectedSegmentList.indexOf(seg);
+                if (segindex < 0)
+                    return;
+                sa.Scenarios[0].SelectedSegmentList.splice(segindex, 1);
+                this.eventmanager.RaiseEvent(WiM.Directives.onLayerChanged, this, new WiM.Directives.LegendLayerChangedEventArgs("PRMSSeg_" + seg.RiverID + "." + seg.SegmentID, "visible", false));
+            };
             //Helper Methods
             //-+-+-+-+-+-+-+-+-+-+-+- 
+            StudyAreaService.prototype.init = function () {
+                this.loadPRMSNameLookup();
+            };
             StudyAreaService.prototype.addStudyAreaByType = function (saType) {
                 var result;
                 switch (saType) {
@@ -341,8 +396,10 @@ var StreamEst;
                 }).finally(function () {
                     //raise event
                     _this._busyCount--;
-                    if (!_this.isBusy)
+                    if (!_this.isBusy) {
+                        sa.status = StreamEst.Models.StudyAreaStatus.e_ready;
                         _this.eventmanager.RaiseEvent(Services.onStudyAreaLoadComplete, _this, StudyAreaEventArgs.Empty);
+                    }
                 });
             };
             StudyAreaService.prototype.loadReferenceGage = function (sa) {
@@ -398,8 +455,10 @@ var StreamEst;
                     }).finally(function () {
                         //raise event
                         _this._busyCount--;
-                        if (!_this.isBusy)
+                        if (!_this.isBusy) {
+                            sa.status = StreamEst.Models.StudyAreaStatus.e_ready;
                             _this.eventmanager.RaiseEvent(Services.onStudyAreaLoadComplete, _this, StudyAreaEventArgs.Empty);
+                        }
                     });
                 });
             };
@@ -443,41 +502,82 @@ var StreamEst;
             StudyAreaService.prototype.computePRMSScenario = function (scenario) {
                 var _this = this;
                 //get all params for scenario
-                this._busyCount++;
-                var url = "";
-                var body = {};
-                url = configuration.regions.IA['PRMS'].url + "/{0}/query";
                 var sd = moment(scenario.startDate).format('YYYY-MM-DD') + " 00:00:00";
                 var ed = moment(scenario.endDate).format('YYYY-MM-DD') + " 00:00:00";
-                var nseg = scenario.SelectedSegmentList.map(function (item) { return "nsegment = " + item.SegmentID; }).join(" OR ");
-                var layerID = scenario.SelectedSegmentList[0].RiverName + 42;
-                body["where"] = "({0}) AND (date'{1}' <= tstamp AND tstamp <= date'{2}')".format(nseg, sd, ed);
-                body["outFields"] = "segment_cf,nsegment,tstamp_str,tstamp";
-                body["returnDistinctValues"] = false;
-                body['f'] = "pjson";
-                url = url.format(layerID);
-                var request = new WiM.Services.Helpers.RequestInfo(url, true, WiM.Services.Helpers.methodType.POST, "json", body, { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, WiM.Services.Helpers.paramsTransform);
+                var segmentGroup = scenario.SelectedSegmentList.group('RiverID');
+                scenario.result = {};
+                scenario.result["EstimatedFlow"] = {};
+                angular.forEach(segmentGroup, function (value, key) {
+                    _this._busyCount++;
+                    var url = "";
+                    var body = {};
+                    var tableID = Number(key) + 42; // +42 inorder to shift from layer to the tables
+                    var nseg = value.map(function (item) { return "nsegment = " + item.SegmentID; }).join(" OR ");
+                    body["where"] = "({0}) AND (date'{1}' <= tstamp AND tstamp <= date'{2}')".format(nseg, sd, ed);
+                    body["outFields"] = "segment_cf,nsegment,tstamp_str,tstamp";
+                    body["returnDistinctValues"] = false;
+                    body['f'] = "pjson";
+                    url = configuration.regions.IA['PRMS'].url + "/{0}/query".format(tableID.toString());
+                    var request = new WiM.Services.Helpers.RequestInfo(url, true, WiM.Services.Helpers.methodType.POST, "json", body, { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, WiM.Services.Helpers.paramsTransform);
+                    _this.Execute(request).then(function (response) {
+                        console.log(key, url);
+                        var resultresponse = response.data.features.map(function (item) { return (new StreamEst.Models.TimeSeriesObservation(new Date(item.attributes.tstamp_str), item.attributes.segment_cf, item.attributes.nsegment)); }).group('Code');
+                        var results = [];
+                        for (var responsekey in resultresponse) {
+                            var eFlow = new StreamEst.Models.TimeSeries();
+                            eFlow.Name = 'Seg: ' + key + '.' + responsekey + ', PRMS ' + _this.prmsNameLookup[key];
+                            eFlow.SeriesDescription = "Estimates computed using Precipitation-Runoff Modeling System.";
+                            eFlow.StartDate = scenario.startDate;
+                            eFlow.EndDate = scenario.endDate;
+                            eFlow.Observations = resultresponse[responsekey];
+                            results.push(eFlow);
+                        } //next responsekey
+                        scenario.result["EstimatedFlow"][_this.prmsNameLookup[key]] = results;
+                    }, function (error) {
+                        scenario.status = StreamEst.Models.ScenarioStatus.e_error;
+                        scenario.Disclaimers["error"] = "Execution Error";
+                    }).finally(function () {
+                        //raise event
+                        _this._busyCount--;
+                        if (!_this.isBusy) {
+                            scenario.status = StreamEst.Models.ScenarioStatus.e_complete;
+                            _this.eventmanager.RaiseEvent(Services.onStudyAreaExcecuteComplete, _this, StudyAreaEventArgs.Empty);
+                        }
+                    });
+                }); //next key
+            };
+            StudyAreaService.prototype.loadPRMSNameLookup = function () {
+                var _this = this;
+                var url = configuration.regions.IA['PRMS'].url + "?f=pjson";
+                var request = new WiM.Services.Helpers.RequestInfo(url, true);
                 this.Execute(request).then(function (response) {
+                    _this.prmsNameLookup = {};
                     //console.log('delineation response headers: ', response.headers());                    
-                    var eFlow = new StreamEst.Models.TimeSeries();
-                    eFlow.Name = 'PRMS Estimates ' + layerID;
-                    eFlow.SeriesDescription = "Estimates computed using PRMS";
-                    eFlow.StartDate = scenario.startDate.toDate();
-                    eFlow.EndDate = scenario.endDate.toDate();
-                    ;
-                    eFlow.Observations = [];
-                    var resultresponse = response.data.features.forEach(function (item) { eFlow.Observations.push(new StreamEst.Models.TimeSeriesObservation(new Date(item.attributes.tstamp_str), item.attributes.segment_cf, item.attributes.nsegment)); });
-                    scenario.result = {};
-                    scenario.result["EstimatedFlow"] = eFlow;
-                    scenario.status = StreamEst.Models.ScenarioStatus.e_complete;
+                    response.data["layers"].forEach(function (l) { _this.prmsNameLookup[l.id] = l.name; });
                 }, function (error) {
-                    scenario.status = StreamEst.Models.ScenarioStatus.e_error;
-                    scenario.Disclaimers["error"] = "Execution Error";
-                }).finally(function () {
-                    //raise event
-                    _this._busyCount--;
-                    if (!_this.isBusy)
-                        _this.eventmanager.RaiseEvent(Services.onStudyAreaExcecuteComplete, _this, StudyAreaEventArgs.Empty);
+                    _this.prmsNameLookup = {
+                        0: "One Hundred and Two River",
+                        1: "Boyer River",
+                        2: "Big Sioux River",
+                        3: "Chariton River",
+                        4: "Des Moines River",
+                        5: "Floyd River",
+                        6: "Fox River",
+                        7: "Iowa River",
+                        8: "Keg River",
+                        9: "Little Sioux River",
+                        10: "Maquoketa River",
+                        11: "Moana-Harrison Ditch",
+                        12: "Nishnabotna River",
+                        13: "Nodaway River",
+                        14: "Fox River",
+                        15: "Soldier River",
+                        16: "Thompson River",
+                        17: "Turkey River",
+                        18: "Upper Iowa River",
+                        19: "Wapsipinicon River",
+                        20: "Yellow River"
+                    };
                 });
             };
             //EventHandlers Methods

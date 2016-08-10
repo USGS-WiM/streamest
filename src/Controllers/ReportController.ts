@@ -36,6 +36,7 @@ module StreamEst.Controllers {
         getMap(): ng.IPromise<any>;
     }
     interface IReportController {
+        removePRMSsegment(seg: Models.IPRMSSegment)
     }
     interface ICenter {
         lat: number;
@@ -83,7 +84,7 @@ module StreamEst.Controllers {
         public center: ICenter = null;
         public bounds: any;
         public layers: IMapLayers = null;
-        public geoJSON: Object;
+        public geojson: Object;
         public defaults: any;        
         public reportTitle: string;
         public reportComments: string;
@@ -91,10 +92,10 @@ module StreamEst.Controllers {
         public selectedTabName: string;
         public selectedSecondaryTabName: string;
         public citations: Array<Models.ICitation>;
-        private _canEdit: boolean;
-        public get canEdit(): boolean {
-            return this._canEdit;
-        }
+        public selectedScenario: Models.IScenario;
+        public selectedGraphData: Array<any>;
+        public selectedGraphOption: any;
+
         public get StudyAreasReady(): boolean {
             var sa = this.studyAreaService.studyAreas;
             if (Object.keys(sa).length === 0) return false;
@@ -126,17 +127,19 @@ module StreamEst.Controllers {
         public get endDate(): Date {
             return new Date();
         }
-        private _availableScenarioNames: Array<string>;
-        public get availableScenarioNames(): Array<string> {
-            return this._availableScenarioNames;
-        }
-        public selectedScenario: Models.IScenario;
-        public selectedGraphData: Array<any>;
-        public selectedGraphOption: any;
+
         private _scenarioFlows: Array<Models.ITimeSeries>
         public get scenarioFlows():Array<Models.ITimeSeries>
         {
             return this._scenarioFlows;
+        }
+        private _canEdit: boolean;
+        public get canEdit(): boolean {
+            return this._canEdit;
+        }
+        private _availableTabNames: Array<string>;
+        public get availableTabNames(): Array<string> {
+            return this._availableTabNames;
         }
         //Constructor
         //-+-+-+-+-+-+-+-+-+-+-+-
@@ -163,7 +166,6 @@ module StreamEst.Controllers {
             this.print = function () {
                 window.print();
             };       
-
         }
 
         //Methods
@@ -172,7 +174,7 @@ module StreamEst.Controllers {
             if (this.selectedTabName == tabname) return;
             this.selectedTabName = tabname;
             this.loadGraphData(tabname);
-            if (this.availableScenarioNames.indexOf(tabname) < 0) return;
+            if (this.availableTabNames.indexOf(tabname) < 0) return;
 
             this.selectedScenario = this.getScenarioByName(tabname);                
         }
@@ -181,7 +183,8 @@ module StreamEst.Controllers {
             this.selectedSecondaryTabName = tabname;            
         }
         public refreshParameter(parameter: Models.IParameter) {
-            //todo... refresh parameter
+            parameter['isbusy'] = true;
+            this.studyAreaService.refreshParameter(parameter);
         }
         public downloadCSV() {
 
@@ -309,7 +312,7 @@ module StreamEst.Controllers {
             //}
 
         }
-        private downloadPDF() {
+        public downloadPDF() {
             var pdf = new jsPDF('p', 'pt', 'letter');
             // source can be HTML-formatted string, or a reference
             // to an actual DOM element from which the text will be scraped.
@@ -355,7 +358,13 @@ module StreamEst.Controllers {
         public loadScenario(scenarioCode:string) {
             console.log(scenarioCode);
         }
-        
+        public getPRMSRiverName(id: number): string {
+               return this.studyAreaService.prmsNameLookup[id];
+        }
+        public removePRMSsegment(seg: Models.IPRMSSegment) {
+            this.studyAreaService.removePRMSSegment(seg);
+            this.showFeatures();
+        }
         //Helper Methods
         //-+-+-+-+-+-+-+-+-+-+-+-
         private initMap(): void {
@@ -364,7 +373,7 @@ module StreamEst.Controllers {
                 baselayers: configuration.basemaps,
                 overlays: {}
             }
-            this.geoJSON = {};
+            this.geojson = {};
             L.Icon.Default.imagePath = 'images';
             this.defaults = {
                 scrollWheelZoom: false,
@@ -376,17 +385,16 @@ module StreamEst.Controllers {
         }
         private init() {
             var sa = this.studyAreaService.studyAreas;
-            this._availableScenarioNames = [];
+            this._availableTabNames = [];
             this._scenarioFlows = [];
             if (Object.keys(sa).length != 0) {
                 for (var key in sa) {
-                    sa[key].Scenarios.map((s) => {
-                        if (s.status > 0) {
-                            this._availableScenarioNames.push(s.code.toLowerCase())
-                            if (s.result.hasOwnProperty("EstimatedFlow")) this._scenarioFlows.push(s.result["EstimatedFlow"]);
-                        }//end if 
-                    });
-                    
+                    sa[key].Scenarios.forEach((s) => {                        
+                        if(s.status > Models.ScenarioStatus.e_initialized || s.status == Models.ScenarioStatus.e_error)
+                            this._availableTabNames.push(s.code.toLowerCase());
+                        if (this.loadScenarioFlow(s))
+                            this._availableTabNames.push('flow');                                             
+                    });//next s                    
                 };//next sa
             }//end if
 
@@ -397,14 +405,39 @@ module StreamEst.Controllers {
             this.initMap()
             this.LoadCitations();
         }
+        private loadScenarioFlow(s: Models.IScenario): boolean {
+            try {
+            
+            if (s.status != Models.ScenarioStatus.e_complete && !s.result.hasOwnProperty("EstimatedFlow")) return false
+            switch (s.code.toLowerCase()) {
+                case 'fdctm':
+                case 'fla':
+                    this._scenarioFlows.push(s.result["EstimatedFlow"]);
+                    break;
+                case 'prms':
+                    //loop over items and push separate
+                    if (Object.keys(s.result["EstimatedFlow"]).length === 0) return;
+                    for (var key in s.result["EstimatedFlow"]) {
+                        s.result["EstimatedFlow"][key].forEach((ts:Models.ITimeSeries) => {
+                            this._scenarioFlows.push(ts)
+                        });//next                        
+                    }//next key
+
+                    break;
+            }//end switch
+            return true;
+            }
+            catch (e) {
+                console.log("False due to catch");
+                return false;
+            }
+        }
         private LoadCitations() {
-
             this.citations = Citations;
-
         }
         private showFeatures(): void {
             this.overlays = {};
-            this.geoJSON = {};
+            this.geojson = {};
             var sa = this.studyAreaService.studyAreas;
             if (Object.keys(sa).length === 0) return;
             for (var key in sa) {
@@ -445,8 +478,11 @@ module StreamEst.Controllers {
                             }
                         }
                         else {
-                            this.geoJSON[item.name] = {
-                                data: item.feature
+                            this.geojson[item.name] = {
+                                data: item.feature,
+                                onEachFeature: (feature, layer) => {
+                                    layer.bindLabel(item.name, { noHide: true })
+                                }
                             }
                         }
 
@@ -477,6 +513,7 @@ module StreamEst.Controllers {
                     this.setGraphOption(name);
                     var scen = this.getScenarioByName(name);
                     data = [];
+                    if (!scen.result) return;
                     for (var key in (<any>scen.result).ExceedanceProbabilities) {
                         data.push({ label: key, value: (<any>scen.result).ExceedanceProbabilities[key] })
                     }//next key
@@ -504,7 +541,7 @@ module StreamEst.Controllers {
                 //this.fetching = true;
             }, 200);
         }
-        public setGraphOption(graphType: string): any {
+        private setGraphOption(graphType: string): any {
             switch (graphType) {
                 case "fdctm":
                     this.selectedGraphOption = {
@@ -597,8 +634,7 @@ module StreamEst.Controllers {
         }
     }//end class
     angular.module('StreamEst.Controllers')
-        .controller('StreamEst.Controllers.ReportController', ReportController)
-        //.controller('StreamEst.Controllers.MapController', MapController)
+        .controller('StreamEst.Controllers.ReportController', ReportController)     
 
 }//end module
    

@@ -82,7 +82,8 @@ module StreamEst.Models {
             var featurelist: Array<any> = [];
             for (var i = 0; i<this.Scenarios.length; i++) {
                 for (var j = 0; j<this.Scenarios[i].SelectedSegmentList.length; j++) {
-                    featurelist.push({ name: "PRMS_seg_"+i+"."+j, feature: this.Scenarios[i].SelectedSegmentList[j].feature });
+                    var seg = this.Scenarios[i].SelectedSegmentList[j];
+                    featurelist.push({ name: "PRMSSeg_"+seg.RiverID+"."+seg.SegmentID, feature: seg.feature });
                 }//next j
             }//next i
             return featurelist;
@@ -111,7 +112,7 @@ module StreamEst.Models {
         e_empty = 0,
         e_initialized = 1,
         e_ready = 2,
-        e_error=3
+        e_error=-1
     }
 
 }//end module 

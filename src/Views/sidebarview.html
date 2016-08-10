@@ -63,6 +63,7 @@
                     <div class="group-wrapper" ng-repeat="scenario in vm.AvailableScenarios | filter:{type:1}">
                         <button class="btn-wim-sm btn-wim-group-1" ng-class="vm.StudyAreaContainsScenario(2, scenario)? 'btn-wim-info':'btn-wim-default'" ng-click="vm.selectScenario(scenario)"><span>{{scenario.name}} </span></button>
                     </div>
+                    <a ng-click="vm.resetStudyArea(2)" class="pull-right">Reset</a>
                 </div>
 
                 <!-- Physical Scenarios -->
@@ -78,11 +79,12 @@
                     <div class="group-wrapper" ng-repeat="scenario in vm.AvailableScenarios | filter:{type:2}">
                         <button class="btn-wim-sm btn-wim-group-1" ng-class="vm.StudyAreaContainsScenario(1, scenario)? 'btn-wim-info':'btn-wim-default'" ng-click="vm.selectScenario(scenario)"><span>{{scenario.name}} </span></button>
                     </div>
+                    <a ng-click="vm.resetStudyArea(1)" class="pull-right">Reset</a>
                 </div>
 
                 <div class="group-wrapper">
                     <button type="button" class="btn-wim-sm btn-wim-success btn-wim-group-1" ng-click="vm.loadSelectedScenarios()"
-                            ng-disabled="!vm.ScenariosSelected || !vm.StudyAreasReady|| isLoadingScenarios">
+                            ng-disabled="!vm.ScenariosSelected || !vm.StudyAreasInitialized|| isLoadingScenarios">
                         <i ng-class="vm.isLoadingScenarios ? 'fa fa-refresh fa-spin' : ''"></i><span>&nbsp;&nbsp;Load Scenarios</span>
                     </button>
                 </div>

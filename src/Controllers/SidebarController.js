@@ -21,11 +21,11 @@ var StreamEst;
     (function (Controllers) {
         'use strinct';
         var SidebarController = (function () {
-            function SidebarController($scope, toaster, $analytics, service, studyArea, modal, exploration, EventManager) {
+            function SidebarController($scope, $analytics, service, studyArea, modal, exploration, EventManager, toaster) {
                 this.EventManager = EventManager;
+                this.toaster = toaster;
                 $scope.vm = this;
                 this.init();
-                this.toaster = toaster;
                 this.angulartics = $analytics;
                 this.searchService = service;
                 this.sideBarCollapsed = false;
@@ -60,13 +60,13 @@ var StreamEst;
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(SidebarController.prototype, "StudyAreasReady", {
+            Object.defineProperty(SidebarController.prototype, "StudyAreasInitialized", {
                 get: function () {
                     var sa = this.studyAreaService.studyAreas;
                     if (Object.keys(sa).length === 0)
                         return false;
                     for (var key in sa) {
-                        if (sa[key].status != StreamEst.Models.StudyAreaStatus.e_ready) {
+                        if (sa[key].status < StreamEst.Models.StudyAreaStatus.e_initialized) {
                             return false;
                         } //end if
                     }
@@ -119,9 +119,12 @@ var StreamEst;
                     _this.isLoadingScenarios = false;
                     _this.EventManager.UnSubscribeToEvent(StreamEst.Services.onStudyAreaLoadComplete, evnthandler);
                     _this.setProcedureType(ProcedureType.REPORT);
+                    _this.clrm();
+                    _this.sm("Finished Loading Scenarios, continue by configuring the report and selecting continue.", StreamEst.Models.NotificationType.e_success, "Loading Scenarios");
                 });
                 this.EventManager.SubscribeToEvent(StreamEst.Services.onStudyAreaLoadComplete, evnthandler);
                 this.studyAreaService.loadScenarios();
+                this.sm("Loading Scenarios. Please wait...", StreamEst.Models.NotificationType.e_wait, "Loading Scenarios", true, 151, 0);
             };
             SidebarController.prototype.setProcedureType = function (pType) {
                 //console.log('in setProcedureType', this.selectedProcedure, pType, !this.canUpdateProcedure(pType));     
@@ -154,7 +157,7 @@ var StreamEst;
             };
             SidebarController.prototype.selectScenario = function (scenario) {
                 if (this.isLoadingScenarios) {
-                    this.toaster.pop("warning", "Warning", "Busy Loading parameters.. Please wait.", 5000);
+                    this.sm("Busy Loading parameters.. Please wait.", StreamEst.Models.NotificationType.e_warning, 'Warning');
                     return;
                 }
                 //add to studyarea
@@ -179,6 +182,19 @@ var StreamEst;
                 this.EventManager.SubscribeToEvent(StreamEst.Services.onStudyAreaExcecuteComplete, evntHandler);
                 this.studyAreaService.computeScenarios(this.dateRange.dates.startDate, this.dateRange.dates.endDate);
             };
+            SidebarController.prototype.getPRMSRiverName = function (id) {
+                return this.studyAreaService.prmsNameLookup[id];
+            };
+            SidebarController.prototype.resetStudyArea = function (studyAreaType, obj) {
+                var _this = this;
+                var sa = this.studyAreaService.getStudyArea(studyAreaType);
+                if (sa == null)
+                    return false;
+                sa.Features.forEach(function (f) {
+                    _this.EventManager.RaiseEvent(WiM.Directives.onLayerChanged, _this, new WiM.Directives.LegendLayerChangedEventArgs(f.name, "visible", false));
+                });
+                delete this.studyAreaService.studyAreas[studyAreaType];
+            };
             //Helper Methods
             //-+-+-+-+-+-+-+-+-+-+-+-
             SidebarController.prototype.init = function () {
@@ -198,30 +214,30 @@ var StreamEst;
                         case ProcedureType.REPORT:
                             //check if scenarios != null;
                             if (this.isLoadingScenarios) {
-                                this.toaster.pop("warning", "Warning", "Loading scenario parameters please wait.", 5000);
+                                this.sm("Loading scenario parameters please wait.", StreamEst.Models.NotificationType.e_warning, "Warning");
                                 return false;
                             }
                             if (!this.ScenariosSelected) {
-                                this.toaster.pop("warning", "Warning", "You must first select a scenario to continue.", 5000);
+                                this.sm("You must first select a scenario to continue.", StreamEst.Models.NotificationType.e_warning, "Warning");
                                 return false;
                             }
-                            if (!this.StudyAreasReady) {
+                            if (!this.StudyAreasInitialized) {
                                 var sa = this.studyAreaService.studyAreas;
                                 if (Object.keys(sa).length === 0)
-                                    this.toaster.pop("warning", "Warning", "There are no study areas. First select a scenario.", 5000);
+                                    this.sm("There are no study areas. First select a scenario.", StreamEst.Models.NotificationType.e_warning, "Warning");
                                 for (var key in sa) {
                                     if (sa[key].status == StreamEst.Models.StudyAreaStatus.e_empty)
-                                        this.toaster.pop('warning', "Warning", "There is no study area initialized. Select a location to add a study area.", 5000);
+                                        this.sm("There is no study area initialized. Select a location to add a study area.", StreamEst.Models.NotificationType.e_warning, "Warning");
                                     if (sa[key].status == StreamEst.Models.StudyAreaStatus.e_initialized)
-                                        this.toaster.pop('warning', "Warning", "Study area is initialized. Please wait....", 5000);
+                                        this.sm("Study area is initialized. Please wait....", StreamEst.Models.NotificationType.e_warning, "Warning");
                                     if (sa[key].status == StreamEst.Models.StudyAreaStatus.e_error)
-                                        this.toaster.pop('warning', "Warning", "There was an error while initializing the study area. Please try again.", 5000);
+                                        this.sm("There was an error while initializing the study area. Please try again.", StreamEst.Models.NotificationType.e_warning, "Warning");
                                 }
                                 ; //next sa
                                 return false;
                             }
                             if (!this.ScenariosReady) {
-                                this.toaster.pop("warning", "Warning", "You must first load the scenarios to continue.", 5000);
+                                this.sm("You must first load the scenarios to continue.", StreamEst.Models.NotificationType.e_warning, "Warning");
                                 return false;
                             }
                             return true;
@@ -239,12 +255,12 @@ var StreamEst;
                 if (!((this.dateRange.dates.startDate <= this.dateRange.maxDate || this.dateRange.dates.endDate <= this.dateRange.maxDate) &&
                     (this.dateRange.dates.startDate >= this.dateRange.minDate || this.dateRange.dates.endDate >= this.dateRange.minDate) &&
                     (this.dateRange.dates.startDate <= this.dateRange.dates.endDate))) {
-                    this.toaster.pop("error", "Error", "Dates are out of range.", 5000);
+                    this.sm("Dates are out of range.", StreamEst.Models.NotificationType.e_error, "Error", true);
                     return false;
                 }
                 if (!this.studyAreaService.verifyScenariosStatus(StreamEst.Models.ScenarioStatus.e_initialized)) {
                     {
-                        this.toaster.pop("error", "Error", "Scenarios are not initialized.", 5000);
+                        this.sm("Scenarios are not initialized.", StreamEst.Models.NotificationType.e_error, "Error", true);
                         return false;
                     }
                 }
@@ -259,9 +275,20 @@ var StreamEst;
                     return d;
                 }
             };
+            SidebarController.prototype.sm = function (m, t, title, showclosebtn, id, tmout) {
+                if (title === void 0) { title = ""; }
+                if (showclosebtn === void 0) { showclosebtn = false; }
+                if (id === void 0) { id = null; }
+                if (tmout === void 0) { tmout = 5000; }
+                this.toaster.pop(new StreamEst.Models.Notification(m, t, title, showclosebtn, tmout, id));
+            };
+            SidebarController.prototype.clrm = function (id) {
+                if (id === void 0) { id = null; }
+                this.toaster.clear(id);
+            };
             //Constructor
             //-+-+-+-+-+-+-+-+-+-+-+-
-            SidebarController.$inject = ['$scope', 'toaster', '$analytics', 'WiM.Services.SearchAPIService', 'StreamEst.Services.StudyAreaService', 'StreamEst.Services.ModalService', 'StreamEst.Services.ExplorationService', 'WiM.Event.EventManager'];
+            SidebarController.$inject = ['$scope', '$analytics', 'WiM.Services.SearchAPIService', 'StreamEst.Services.StudyAreaService', 'StreamEst.Services.ModalService', 'StreamEst.Services.ExplorationService', 'WiM.Event.EventManager', 'toaster'];
             return SidebarController;
         })(); //end class
         var ProcedureType;

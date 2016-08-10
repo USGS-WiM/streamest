@@ -1,0 +1,327 @@
+<div id="print-content">   
+    <!-- Modal -->
+    <div class="modal-header hidden-print">
+        <button type="button" class="close" ng-click="vm.close()"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Report</h4>
+    </div>
+    <div class="modal-body" >
+        <div ng-hide="vm.StudyAreasReady">A study area is needed before viewing the report</div>   
+        <div ng-show="vm.StudyAreasReady">
+            <div class="form-group hidden-print">
+                <div class="wim-alert">Enter a report title and/or comments here that will display on the printed report.  Use the print button below.</div>
+                <label>Enter report title:</label>
+                <input type="text" class="form-control" ng-model="vm.reportTitle" placeholder="Title">
+
+                <label>Enter comments:</label>
+                <textarea rows="3" class="form-control" ng-model="vm.reportComments" placeholder="Comments"></textarea>
+            </div>
+            <div>
+                <h2>{{vm.reportTitle}}</h2>
+                <dl class="dl-horizontal">
+                    <dt>Generated Date:</dt>
+                    <dd>{{vm.reportDate | date:'yyyy/MM/dd'}}</dd>
+                </dl>
+                <p>{{vm.reportComments}}</p>
+            </div>
+            <ul id="reportTabs" class="nav nav-tabs hidden-print">
+                <li ng-class="{'active':vm.selectedTabName==='studyarea'}"><a ng-click="vm.selectTab('studyarea')"><i class="fa fa-map-marker"></i>&nbsp;Study Area</a></li>
+                <li ng-if="vm.availableTabNames.indexOf('fdctm')>-1" ng-class="{'active':vm.selectedTabName==='fdctm'}"><a ng-click="vm.selectTab('fdctm')"><i class="fa fa-picture-o"></i>&nbsp;Flow Duration Curve Transfer Method Scenario</a></li>
+                <li ng-if="vm.availableTabNames.indexOf('fla')>-1" ng-class="{'active':vm.selectedTabName==='fla'}"><a ng-click="vm.selectTab('fla')"><i class="fa fa-picture-o"></i>&nbsp;Flow Anywhere Scenario</a></li>
+                <li ng-if="vm.availableTabNames.indexOf('prms')>-1" ng-class="{'active':vm.selectedTabName==='prms'}"><a ng-click="vm.selectTab('prms')"><i class="fa fa-picture-o"></i>&nbsp;PRMS Scenario</a></li>
+                <li ng-if="vm.availableTabNames.indexOf('flow')>-1" ng-class="{'active':vm.selectedTabName==='flow'}"><a ng-click="vm.selectTab('flow')"><i class="fa fa-tint"></i>&nbsp;Estimated Flow</a></li>
+                <li ng-if="!vm.canEdit" ng-class="{'active':vm.selectedTabName==='citations'}"><a ng-click="vm.selectTab('citations')"><i class="fa fa-book"></i>&nbsp;Citations</a></li>
+            </ul>
+
+            <div id="studyAreaTab" ng-if="vm.selectedTabName==='studyarea'">              
+                <leaflet width="100%" height="400px" layers="vm.layers" geojson="vm.geojson" geojson-nested="true" center="vm.center" defaults="vm.defaults"></leaflet><br />
+                <div ng-if="vm.studyAreaParametersReady">
+                    <!--Parameter Table if just basin chars-->
+                    <div class="well well-sm">
+                        <h4>Basin Characteristics</h4>
+                        <table class="table table-condensed">
+                            <thead class="param-table">
+                                <tr>
+                                    <th>Parameter Code</th>
+                                    <th>Parameter Description</th>
+                                    <th>Value</th>
+                                    <th>Unit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="parameter in vm.studyAreaParameters" ng-init="parameter.isbusy = false">
+                                    <td ng-bind="parameter.name"></td>
+                                    <td ng-bind="parameter.description"></td>
+                                    <td ng-bind="parameter.value"></td>
+                                    <td ng-bind="parameter.unit"></td>
+                                    <td ng-if="vm.canEdit"><button class="btn-wim-default" ng-click="vm.refreshParameter(parameter)"><i class="fa fa-refresh" ng-class="parameter.isbusy ? 'fa-spin':''"></i></button></td>                                  
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!--Study Area Disclaimers-->
+                    <div class="well well-sm" ng-show="vm.studyAreaService.Disclaimers.parametersEdited || vm.studyAreaService.Disclaimers.isRegulated || vm.studyAreaService.Disclaimers.isEdited || vm.studyAreaService.Disclaimers.isInExclusionArea">
+                        <h4>General Disclaimers</h4>
+                        <div class="wim-alert-warning" ng-show="vm.studyAreaService.Disclaimers.parametersEdited">Parameter values have been edited, computed flows may not apply.</div>
+                    </div>
+                </div>
+                <div id="downloadButtons" class="hidden-print">
+                    <div class="btn-group wim-btn-group" dropdown is-open="status.isopen">
+                        <button type="button" class="btn-wim-sm btn-wim-default dropdown-toggle" dropdown-toggle ng-disabled="disabled">
+                            Download Basin <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <!--<li><a href="#" ng-click="vm.downloadGeoJSON()" analytics-on analytics-event="Download" analytics-category="Report" analytics-label="GeoJSON"><span class="fa fa-download"></span>&nbsp;&nbsp;GeoJSON</a></li>-->
+                            <li><a href ="{{vm.studyAreaService.servicesURL}}/streamstatsservices/download?workspaceID={{vm.workspaceID}}&format=Shape" analytics-on analytics-event="Download" analytics-category="Report" analytics-label="Shapefile"><span class="fa fa-download"></span>&nbsp;&nbsp;Shapefile</a></li>
+                            <li><a href="{{vm.studyAreaService.servicesURL}}/streamstatsservices/download?workspaceID={{vm.workspaceID}}" analytics-on analytics-event="Download" analytics-category="Report" analytics-label="File GDB"><span class="fa fa-download"></span>&nbsp;&nbsp;ESRI File GDB</a></li>
+                        </ul>
+                    </div>
+                    <div class="btn-group wim-btn-group" ng-show="vm.studyAreaService.parametersLoaded">
+                        <button type="button" class="btn-wim-sm btn-wim-default" ng-click="vm.downloadCSV()"><span><i class="fa fa-download"></i>&nbsp;&nbsp;Download CSV</span></button>
+                        <!--<button type="button" class="btn-wim-sm btn-wim-default" ng-click="vm.downloadPDF()" ><span><i class="fa fa-download"></i>&nbsp;&nbsp;Download PDF</span></button>-->
+                    </div>
+                </div>
+            </div>  
+            <div id="statisticScenarioTab" ng-show="vm.selectedTabName==='fdctm' || vm.selectedTabName==='fla'">
+                <div id="editableScenarios" ng-if="vm.canEdit || vm.selectedScenario.status < 10">
+                    <div ng-repeat="sc in [vm.selectedScenario]">
+                        <!--Reference gage-->
+                        <div class="btn-group wim-btn-group" dropdown is-open="status.isopen">
+                            <button  type="button" class="btn-wim-sm btn-wim-default dropdown-toggle" dropdown-toggle ng-disabled="!vm.canEdit">
+                                ({{sc.SelectedReferenceGage.StationID}}) {{sc.SelectedReferenceGage.Name}} <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li ng-repeat ="item in sc.ReferenceGageList"><a ng-click="sc.SelectedReferenceGage = item" title="{{item.hasOwnProperty('correlation')? 'Corrilation: ' + item.correlation:''}}">({{item.StationID}}) {{item.Name}}</a></li>
+                            </ul>
+                        </div>
+                        <!--Parameter Table if just basin chars-->
+                        <div id="ModelParameters" class="well well-sm">
+                            <h3>Model Parameters</h3>
+                            <table class="table table-condensed">
+                                <thead class="param-table">
+                                    <tr>
+                                        <th>Parameter Code</th>
+                                        <th>Description</th>
+                                        <th>Value<font color="red"> *</font></th>
+                                        <th>Unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat-start="parameter in sc.Parameters">
+                                        <td>{{parameter.code}}</td>
+                                        <td>{{parameter.description}}</td>
+                                        <td ng-if="vm.canEdit"><input type="number" class="form-control" name="parameter.code" placeholder="Enter a Decimal" ng-model="parameter.value" ng-pattern="/^[0-9]{1,7}(\.[0-9]+)?$/" required /></td>
+                                        <td ng-if="!vm.canEdit">{{parameter.value}}</td>
+                                        <td>{{parameter.unit}}</td>
+                                    </tr>
+                                    <tr ng-repeat-end ng-if="parameter.value > parameter.limits.max || parameter.value < parameter.limits.min">
+                                        <td colspan="100%" class="wim-alert" style="display:table-cell">
+                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Warning: {{parameter.code}} is outside the suggested range; min: {{parameter.limits.min}} max: {{parameter.limits.max}} {{parameter.unit}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- FLA Aggregated Region -->
+                        <div id="AggregatedRegion" ng-if="vm.selectedTabName==='fla'">
+                            <div id="AggregatedTable" class="well well-sm">
+                                <table class="table table-condensed" title="Exceedance Probabilities">
+                                    <thead>
+                                        <tr>
+                                            <th>Aggregated Region</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>{{sc.regionID}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="reportedScenarios" ng-if="vm.selectedScenario.status == 10 && !vm.canedit">
+                    <div ng-repeat="sc in [vm.selectedScenario.result]">
+                        <div class="wim-alert">
+                            <h2 class="step-label">{{sc.Description}}</h2>
+                            <span>StartDate: </span><span>{{sc.StartDate| date:'yyyy/MM/dd'}}</span><br />
+                            <span>EndDate: </span><span>{{sc.EndDate| date:'yyyy/MM/dd'}}</span><br />
+                        </div>
+                        <!--Reference gage-->
+                        <div id="ReferenceGage" class="well well-sm">
+                            <h3>Model Parameters</h3>
+                            <table class="table table-condensed">
+                                <tbody>
+                                    <tr>
+                                        <td>Station ID:</td>
+                                        <td><a ng-attr-title={{sc.ReferanceGage.Name}} ng-href={{sc.ReferanceGage.URL}} target="_blank">{{sc.ReferanceGage.StationID}}</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Name:</td>
+                                        <td><span>{{sc.ReferanceGage.Name}}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Latitude:</td>
+                                        <td><span>{{sc.ReferanceGage.Latitude_DD}}</span><span> Decimal Degrees</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Longitude:</td>
+                                        <td><span>{{sc.ReferanceGage.Longitude_DD}}</span><span> Decimal Degrees</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Drainage Area:</td>
+                                        <td><span>{{sc.ReferanceGage.DrainageArea_sqMI}}</span><span> square miles</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!--Parameter Table if just basin chars-->
+                        <div id="ModelParameters" class="well well-sm">
+                            <h3>Model Parameters</h3>
+                            <table class="table table-condensed">
+                                <thead class="param-table">
+                                    <tr>
+                                        <th>Parameter Code</th>
+                                        <th>Description</th>
+                                        <th>Value</th>
+                                        <th>Unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat-start="parameter in sc.Parameters">
+                                        <td>{{parameter.code}}</td>
+                                        <td>{{parameter.description}}</td>
+                                        <td>{{parameter.value}}</td>
+                                        <td>{{parameter.unit}}</td>
+                                    </tr>
+                                    <tr ng-repeat-end ng-if="parameter.value > parameter.limits.max || parameter.value < parameter.limits.min">
+                                        <td colspan="100%" class="wim-alert" style="display:table-cell">
+                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Warning: {{parameter.code}} is outside the suggested range; min: {{parameter.limits.min}} max: {{parameter.limits.max}} {{parameter.unit}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!--FDCTM Exceedance Probablities-->
+                        <div id="Exceedance Probablities" ng-if="vm.selectedTabName==='fdctm'" ng-init="vm.selectSecondaryTab('graph')">
+                            <ul id="secondaryTabs" class="nav nav-tabs hidden-print">
+                                <li ng-class="{'active':vm.selectedSecondaryTabName==='graph'}"><a ng-click="vm.selectSecondaryTab('graph')"><i class="fa fa-area-chart"></i>&nbsp;Graph</a></li>
+                                <li ng-class="{'active':vm.selectedSecondaryTabName==='table'}"><a ng-click="vm.selectSecondaryTab('table')"><i class="fa fa-table"></i>&nbsp;Table</a></li>
+                            </ul>
+                            <div id="exceedanceGraph" ng-if="vm.selectedSecondaryTabName==='graph'">
+                                <nvd3 options='vm.selectedGraphOption' data='vm.selectedGraphData'></nvd3>
+                            </div>
+                            <div id="exceedanceTable" class="well well-sm" ng-if="vm.selectedSecondaryTabName==='table'">
+                                <!--Table-->
+                                <table class="table table-condensed" title="Exceedance Probabilities">
+                                    <thead>
+                                        <tr>
+                                            <th>Exceedance</th>
+                                            <th>Flow Exceeded</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody ng-repeat="(key, value) in sc.ExceedanceProbabilities">
+                                        <tr>
+                                            <td>{{key}}</td>
+                                            <td>{{value.toUSGSvalue()}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- FLA Aggregated Region -->
+                        <div id="AggregatedRegion" ng-if="vm.selectedTabName==='fla'">
+                            <div id="AggregatedTable" class="well well-sm">
+                                <table class="table table-condensed" title="Exceedance Probabilities">
+                                    <thead>
+                                        <tr>
+                                            <th>Aggregated Region</th>
+                                            <th>Equation Constants</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>{{sc.Region}}</td>
+                                            <td>Constant 1: {{sc.Const1}} <br />Constant 2: {{sc.Const2}}<br />Constant 3: {{sc.Const3}} </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="prmsScenarioTab" ng-show="vm.selectedTabName==='prms'">
+                <div ng-repeat="sc in [vm.selectedScenario]">
+                    <!-- add prms segm... remove seg if editable -->
+                    <div class="well well-sm">
+                        <table class="table" title="prmssegments">
+                            <tbody ng-repeat="seg in sc.SelectedSegmentList">
+                                <tr>
+                                    <td><strong>PRMS {{vm.getPRMSRiverName(seg.RiverID)}}</strong></td>
+                                    <td>Segment: {{seg.RiverID}}.{{seg.SegmentID}}</td>
+                                    <td ng-if="vm.canEdit"><button title="Click to remove segment." ng-disabled="sc.SelectedSegmentList.length <= 1" class="btn-wim-default" ng-click="vm.removePRMSsegment(seg)"><i class="fa fa-times area-hidden='true'"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="flowTab"  ng-if="vm.selectedTabName==='flow'">
+                <div id="flows" ng-init="vm.selectSecondaryTab('graph')">
+                    <ul id="secondaryTabs" class="nav nav-tabs hidden-print">
+                        <li ng-class="{'active':vm.selectedSecondaryTabName==='graph'}"><a ng-click="vm.selectSecondaryTab('graph')"><i class="fa fa-area-chart"></i>&nbsp;Graph</a></li>
+                        <li ng-class="{'active':vm.selectedSecondaryTabName==='table'}"><a ng-click="vm.selectSecondaryTab('table')"><i class="fa fa-table"></i>&nbsp;Table</a></li>
+                    </ul>
+                    <div id="flowGraph" ng-if="vm.selectedSecondaryTabName==='graph'">
+                        <nvd3 options='vm.selectedGraphOption' data='vm.selectedGraphData'></nvd3>
+                    </div>
+                    <div id="flowTable" class="well well-sm" ng-if="vm.selectedSecondaryTabName==='table'">
+                        <!--Table-->
+                        <table class="table table-condensed" title="Estimated Flows">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th ng-attr-colspan="{{vm.availableTabNames.length}}">Estimated Flow (cfs)</th>
+                                </tr>
+                                <tr>
+                                    <th>Date</th>
+                                    <th ng-repeat="column in vm.scenarioFlows"><span>{{column.Name}}</span></th>
+                                </tr>
+                            </thead>
+                            <tbody ng-repeat="(index,obs) in vm.scenarioFlows[0].Observations">
+                                <tr>
+                                    <td>{{obs.Date| date:'yyyy/MM/dd'}}</td>
+                                    <td ng-repeat="modelflow in vm.scenarioFlows">{{modelflow.Observations[index].Value.toUSGSvalue()}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="citationTab" ng-show="vm.selectedTabName==='citations'">
+                <div class="well well-sm" id="supportContent">
+                    <table class="table table-hover" title="Citations">
+                        <tbody ng-repeat="citation in vm.citations">
+                            <tr ng-click="vm.openCitationLink(citation)">
+                                <td rowspan="2"><img width=70px src={{citation.imgeSrc}} /></td>
+                                <td>
+                                    <strong>{{citation.title}}</strong><br />
+                                    <div>{{citation.author}}</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>          
+        </div>       
+    </div>
+    <div class="modal-footer hidden-print">
+        <div class="btn-group">
+            <button class="btn-wim-default" ng-click="vm.close()"><i class="fa fa-close"></i>&nbsp;&nbsp;Close</button>
+            <button class="btn-wim-default" ng-click="vm.print()" analytics-on analytics-event="Print" analytics-category="Report" analytics-label="Print"><i class="fa fa-print"></i>&nbsp;&nbsp;Print</button>
+        </div>
+    </div>
+    
+</div>

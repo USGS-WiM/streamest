@@ -44,13 +44,6 @@ var StreamEst;
                     window.print();
                 };
             }
-            Object.defineProperty(ReportController.prototype, "canEdit", {
-                get: function () {
-                    return this._canEdit;
-                },
-                enumerable: true,
-                configurable: true
-            });
             Object.defineProperty(ReportController.prototype, "StudyAreasReady", {
                 get: function () {
                     var sa = this.studyAreaService.studyAreas;
@@ -110,16 +103,23 @@ var StreamEst;
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(ReportController.prototype, "availableScenarioNames", {
+            Object.defineProperty(ReportController.prototype, "scenarioFlows", {
                 get: function () {
-                    return this._availableScenarioNames;
+                    return this._scenarioFlows;
                 },
                 enumerable: true,
                 configurable: true
             });
-            Object.defineProperty(ReportController.prototype, "scenarioFlows", {
+            Object.defineProperty(ReportController.prototype, "canEdit", {
                 get: function () {
-                    return this._scenarioFlows;
+                    return this._canEdit;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(ReportController.prototype, "availableTabNames", {
+                get: function () {
+                    return this._availableTabNames;
                 },
                 enumerable: true,
                 configurable: true
@@ -131,7 +131,7 @@ var StreamEst;
                     return;
                 this.selectedTabName = tabname;
                 this.loadGraphData(tabname);
-                if (this.availableScenarioNames.indexOf(tabname) < 0)
+                if (this.availableTabNames.indexOf(tabname) < 0)
                     return;
                 this.selectedScenario = this.getScenarioByName(tabname);
             };
@@ -141,7 +141,8 @@ var StreamEst;
                 this.selectedSecondaryTabName = tabname;
             };
             ReportController.prototype.refreshParameter = function (parameter) {
-                //todo... refresh parameter
+                parameter['isbusy'] = true;
+                this.studyAreaService.refreshParameter(parameter);
             };
             ReportController.prototype.downloadCSV = function () {
                 //ga event
@@ -294,6 +295,13 @@ var StreamEst;
             ReportController.prototype.loadScenario = function (scenarioCode) {
                 console.log(scenarioCode);
             };
+            ReportController.prototype.getPRMSRiverName = function (id) {
+                return this.studyAreaService.prmsNameLookup[id];
+            };
+            ReportController.prototype.removePRMSsegment = function (seg) {
+                this.studyAreaService.removePRMSSegment(seg);
+                this.showFeatures();
+            };
             //Helper Methods
             //-+-+-+-+-+-+-+-+-+-+-+-
             ReportController.prototype.initMap = function () {
@@ -302,7 +310,7 @@ var StreamEst;
                     baselayers: configuration.basemaps,
                     overlays: {}
                 };
-                this.geoJSON = {};
+                this.geojson = {};
                 L.Icon.Default.imagePath = 'images';
                 this.defaults = {
                     scrollWheelZoom: false,
@@ -315,17 +323,16 @@ var StreamEst;
             ReportController.prototype.init = function () {
                 var _this = this;
                 var sa = this.studyAreaService.studyAreas;
-                this._availableScenarioNames = [];
+                this._availableTabNames = [];
                 this._scenarioFlows = [];
                 if (Object.keys(sa).length != 0) {
                     for (var key in sa) {
-                        sa[key].Scenarios.map(function (s) {
-                            if (s.status > 0) {
-                                _this._availableScenarioNames.push(s.code.toLowerCase());
-                                if (s.result.hasOwnProperty("EstimatedFlow"))
-                                    _this._scenarioFlows.push(s.result["EstimatedFlow"]);
-                            } //end if 
-                        });
+                        sa[key].Scenarios.forEach(function (s) {
+                            if (s.status > StreamEst.Models.ScenarioStatus.e_initialized || s.status == StreamEst.Models.ScenarioStatus.e_error)
+                                _this._availableTabNames.push(s.code.toLowerCase());
+                            if (_this.loadScenarioFlow(s))
+                                _this._availableTabNames.push('flow');
+                        }); //next s                    
                     }
                     ; //next sa
                 } //end if
@@ -335,13 +342,41 @@ var StreamEst;
                 this.initMap();
                 this.LoadCitations();
             };
+            ReportController.prototype.loadScenarioFlow = function (s) {
+                var _this = this;
+                try {
+                    if (s.status != StreamEst.Models.ScenarioStatus.e_complete && !s.result.hasOwnProperty("EstimatedFlow"))
+                        return false;
+                    switch (s.code.toLowerCase()) {
+                        case 'fdctm':
+                        case 'fla':
+                            this._scenarioFlows.push(s.result["EstimatedFlow"]);
+                            break;
+                        case 'prms':
+                            //loop over items and push separate
+                            if (Object.keys(s.result["EstimatedFlow"]).length === 0)
+                                return;
+                            for (var key in s.result["EstimatedFlow"]) {
+                                s.result["EstimatedFlow"][key].forEach(function (ts) {
+                                    _this._scenarioFlows.push(ts);
+                                }); //next                        
+                            } //next key
+                            break;
+                    } //end switch
+                    return true;
+                }
+                catch (e) {
+                    console.log("False due to catch");
+                    return false;
+                }
+            };
             ReportController.prototype.LoadCitations = function () {
                 this.citations = Citations;
             };
             ReportController.prototype.showFeatures = function () {
                 var _this = this;
                 this.overlays = {};
-                this.geoJSON = {};
+                this.geojson = {};
                 var sa = this.studyAreaService.studyAreas;
                 if (Object.keys(sa).length === 0)
                     return;
@@ -382,8 +417,11 @@ var StreamEst;
                                 };
                             }
                             else {
-                                _this.geoJSON[item.name] = {
-                                    data: item.feature
+                                _this.geojson[item.name] = {
+                                    data: item.feature,
+                                    onEachFeature: function (feature, layer) {
+                                        layer.bindLabel(item.name, { noHide: true });
+                                    }
                                 };
                             }
                         });
@@ -412,6 +450,8 @@ var StreamEst;
                         this.setGraphOption(name);
                         var scen = this.getScenarioByName(name);
                         data = [];
+                        if (!scen.result)
+                            return;
                         for (var key in scen.result.ExceedanceProbabilities) {
                             data.push({ label: key, value: scen.result.ExceedanceProbabilities[key] });
                         } //next key

@@ -231,7 +231,7 @@ module StreamEst.Models {
     }//end class
     export interface IPRMSSegment {
         SegmentID: Number;
-        RiverName: string;
+        RiverID: string;
         feature: any;
     }
     export enum ScenarioType {

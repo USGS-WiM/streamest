@@ -42,12 +42,18 @@ module StreamEst {
             this.$locationProvider.html5Mode(true);   
             
             //turns of angular-leaflet console spam
-            this.$logProvider.debugEnabled(false);                        
+            this.$logProvider.debugEnabled(false); 
+                                 
         }//end constructor
     }//end class
-
-    angular.module('StreamEst',[
-        'ui.router', 'ui.bootstrap','ui.checkbox',
+    //class run {
+    //    static $inject = ['StreamEst.Services.NotificationService'];
+    //    constructor(private notificationService: Services.INotificationService) {
+    //        console.log("got it", this.notificationService)
+    //    }//end constructor
+    //}//end class
+    angular.module('StreamEst', [
+        'ui.router', 'ui.bootstrap', 'ui.checkbox',
         'mobile-angular-ui',
         'angulartics', 'angulartics.google.analytics',
         'toaster', 'ngAnimate', 'ngFileUpload', 'nvd3',
@@ -55,6 +61,9 @@ module StreamEst {
         'StreamEst.Services',
         'StreamEst.Controllers',
         'WiM.Services', 'WiM.Event', 'wim_angular', 'daterangepicker'
-        ])
-        .config(config);
+    ])
+        .config(config)
+        //.run(run);
+       
+    
 }//end module 
