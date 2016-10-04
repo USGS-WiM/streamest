@@ -99,14 +99,14 @@ module StreamEst.Models {
             this.CreatedDate = new Date();
             this.Disclaimers = {};
             this.Scenarios = [];
-            this.Features = [];
             this.status = StudyAreaStatus.e_empty;
         }
     }//end class
     
     export enum StudyAreaType {
-        e_segment = 1,
-        e_basin =2
+        e_basin = 1,
+        e_segment = 2
+        
     }
     export enum StudyAreaStatus {
         e_empty = 0,

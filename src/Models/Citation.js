@@ -29,7 +29,7 @@ var StreamEst;
                 this.src = url;
             } //end constructor
             return Citation;
-        })();
+        }());
         Models.Citation = Citation; //end class
     })(Models = StreamEst.Models || (StreamEst.Models = {}));
 })(StreamEst || (StreamEst = {})); //end module  

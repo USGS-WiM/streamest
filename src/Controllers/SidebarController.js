@@ -105,15 +105,20 @@ var StreamEst;
                 enumerable: true,
                 configurable: true
             });
-            SidebarController.prototype.isBuildingReport = function () {
-                return this._isBuildingReport;
-            };
+            Object.defineProperty(SidebarController.prototype, "isBuildingReport", {
+                get: function () {
+                    return this._isBuildingReport;
+                },
+                enumerable: true,
+                configurable: true
+            });
             //Methods
             SidebarController.prototype.getLocations = function (term) {
                 return this.searchService.getLocations(term);
             };
             SidebarController.prototype.loadSelectedScenarios = function () {
                 var _this = this;
+                this.sm("Loading Scenarios. Please wait...", StreamEst.Models.NotificationType.e_wait, "Loading Scenarios", true, 151, 0);
                 this.isLoadingScenarios = true;
                 var evnthandler = new WiM.Event.EventHandler(function (sender, e) {
                     _this.isLoadingScenarios = false;
@@ -124,7 +129,6 @@ var StreamEst;
                 });
                 this.EventManager.SubscribeToEvent(StreamEst.Services.onStudyAreaLoadComplete, evnthandler);
                 this.studyAreaService.loadScenarios();
-                this.sm("Loading Scenarios. Please wait...", StreamEst.Models.NotificationType.e_wait, "Loading Scenarios", true, 151, 0);
             };
             SidebarController.prototype.setProcedureType = function (pType) {
                 //console.log('in setProcedureType', this.selectedProcedure, pType, !this.canUpdateProcedure(pType));     
@@ -175,9 +179,11 @@ var StreamEst;
                     return;
                 if (this.studyAreaService.isBusy)
                     return;
+                this._isBuildingReport = true;
                 var evntHandler = new WiM.Event.EventHandler(function (sender, e) {
                     _this.modalService.openModal(StreamEst.Services.SSModalType.e_report);
                     _this.EventManager.UnSubscribeToEvent(StreamEst.Services.onStudyAreaExcecuteComplete, evntHandler);
+                    _this._isBuildingReport = false;
                 });
                 this.EventManager.SubscribeToEvent(StreamEst.Services.onStudyAreaExcecuteComplete, evntHandler);
                 this.studyAreaService.computeScenarios(this.dateRange.dates.startDate, this.dateRange.dates.endDate);
@@ -185,7 +191,7 @@ var StreamEst;
             SidebarController.prototype.getPRMSRiverName = function (id) {
                 return this.studyAreaService.prmsNameLookup[id];
             };
-            SidebarController.prototype.resetStudyArea = function (studyAreaType, obj) {
+            SidebarController.prototype.resetStudyArea = function (studyAreaType) {
                 var _this = this;
                 var sa = this.studyAreaService.getStudyArea(studyAreaType);
                 if (sa == null)
@@ -290,7 +296,7 @@ var StreamEst;
             //-+-+-+-+-+-+-+-+-+-+-+-
             SidebarController.$inject = ['$scope', '$analytics', 'WiM.Services.SearchAPIService', 'StreamEst.Services.StudyAreaService', 'StreamEst.Services.ModalService', 'StreamEst.Services.ExplorationService', 'WiM.Event.EventManager', 'toaster'];
             return SidebarController;
-        })(); //end class
+        }()); //end class
         var ProcedureType;
         (function (ProcedureType) {
             ProcedureType[ProcedureType["SEARCH"] = 1] = "SEARCH";

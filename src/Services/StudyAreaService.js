@@ -38,7 +38,7 @@ var StreamEst;
                 _super.call(this);
             }
             return StudyAreaEventArgs;
-        })(WiM.Event.EventArgs);
+        }(WiM.Event.EventArgs));
         Services.StudyAreaEventArgs = StudyAreaEventArgs;
         var StudyAreaService = (function (_super) {
             __extends(StudyAreaService, _super);
@@ -225,15 +225,15 @@ var StreamEst;
                 if (Object.keys(sa).length === 0)
                     return;
                 for (var key in sa) {
-                    if (sa[key].status != StreamEst.Models.StudyAreaStatus.e_initialized)
-                        return;
+                    //if (sa[key].status > Models.StudyAreaStatus.e_initialized) continue;
                     if (sa[key].studyAreaType == StreamEst.Models.StudyAreaType.e_basin)
                         this.loadParameters(sa[key]);
                     if (sa[key].studyAreaType == StreamEst.Models.StudyAreaType.e_basin)
                         this.loadReferenceGage(sa[key]);
-                    if (sa[key].studyAreaType == StreamEst.Models.StudyAreaType.e_segment && !this.isBusy) {
+                    if (sa[key].studyAreaType == StreamEst.Models.StudyAreaType.e_segment) {
                         sa[key].status = StreamEst.Models.StudyAreaStatus.e_ready;
-                        this.eventmanager.RaiseEvent(Services.onStudyAreaLoadComplete, this, StudyAreaEventArgs.Empty);
+                        if (!this.isBusy)
+                            this.eventmanager.RaiseEvent(Services.onStudyAreaLoadComplete, this, StudyAreaEventArgs.Empty);
                     }
                 }
                 ; //next sa
@@ -586,7 +586,7 @@ var StreamEst;
                 //console.log('in onStudyAreaChanged');
             };
             return StudyAreaService;
-        })(WiM.Services.HTTPServiceBase); //end class
+        }(WiM.Services.HTTPServiceBase)); //end class
         factory.$inject = ['$http', 'WiM.Event.EventManager', 'StreamEst.Services.ModalService'];
         function factory($http, eventManager, modalservice) {
             return new StudyAreaService($http, eventManager, modalservice);

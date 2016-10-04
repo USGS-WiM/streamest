@@ -15,7 +15,7 @@ var StreamEst;
                 this.zoom = zm;
             }
             return Center;
-        })();
+        }());
         var ReportController = (function () {
             function ReportController($scope, $timeout, $analytics, $modalInstance, studyArea, leafletData, modalservice) {
                 var _this = this;
@@ -337,7 +337,6 @@ var StreamEst;
                     ; //next sa
                 } //end if
                 this.reportTitle = 'StreamEst Report';
-                this.reportDate = new Date();
                 this.selectedTabName = "studyarea";
                 this.initMap();
                 this.LoadCitations();
@@ -565,7 +564,7 @@ var StreamEst;
             //-+-+-+-+-+-+-+-+-+-+-+-
             ReportController.$inject = ['$scope', '$timeout', '$analytics', '$modalInstance', 'StreamEst.Services.StudyAreaService', 'leafletData', 'StreamEst.Services.ModalService'];
             return ReportController;
-        })(); //end class
+        }()); //end class
         angular.module('StreamEst.Controllers')
             .controller('StreamEst.Controllers.ReportController', ReportController);
     })(Controllers = StreamEst.Controllers || (StreamEst.Controllers = {}));

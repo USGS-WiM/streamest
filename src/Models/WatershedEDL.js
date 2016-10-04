@@ -26,7 +26,7 @@ var StreamEst;
                 this.remove = [];
             }
             return WatershedEditDecisionList;
-        })();
+        }());
         Models.WatershedEditDecisionList = WatershedEditDecisionList; //end class
     })(Models = StreamEst.Models || (StreamEst.Models = {}));
 })(StreamEst || (StreamEst = {})); //end module 

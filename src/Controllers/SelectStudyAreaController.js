@@ -57,7 +57,7 @@ var StreamEst;
                 //console.log("in about controller");
                 for (var property in this.studyAreaService.studyAreas) {
                     if (this.studyAreaService.studyAreas.hasOwnProperty(property) && this.studyAreaService.studyAreas[property].status == StreamEst.Models.StudyAreaStatus.e_empty) {
-                        this.selectedStudyAreaType = property;
+                        this.selectedStudyAreaType = this.studyAreaService.studyAreas[property].studyAreaType;
                         break;
                     } //end if
                 } //next property            
@@ -66,7 +66,7 @@ var StreamEst;
             //-+-+-+-+-+-+-+-+-+-+-+-
             SelectStudyAreaController.$inject = ['$scope', '$modalInstance', 'WiM.Event.EventManager', 'StreamEst.Services.StudyAreaService'];
             return SelectStudyAreaController;
-        })(); //end  class
+        }()); //end  class
         angular.module('StreamEst.Controllers')
             .controller('StreamEst.Controllers.SelectStudyAreaController', SelectStudyAreaController);
     })(Controllers = StreamEst.Controllers || (StreamEst.Controllers = {}));

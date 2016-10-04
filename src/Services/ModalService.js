@@ -80,7 +80,7 @@ var StreamEst;
                 }
             };
             return ModalService;
-        })(); //end class
+        }()); //end class
         (function (SSModalType) {
             SSModalType[SSModalType["e_report"] = 1] = "e_report";
             SSModalType[SSModalType["e_about"] = 2] = "e_about";

@@ -46,6 +46,80 @@ body {
     margin-bottom:4px;
 }
 
+[type="checkbox"]:not(:checked)+label:after, [type="checkbox"]:checked+label:after {
+    display:none;
+}
+[type="radio"]:not(:checked),
+[type="radio"]:checked {
+  position: absolute;
+  left: -9999px;
+}
+[type="radio"]:not(:checked) + label,
+[type="radio"]:checked + label {
+  position: relative;
+  padding-left: 25px !important;
+  padding-top: 4px !important;
+  cursor: pointer;
+}
+
+/* checkbox aspect */
+[type="radio"]:not(:checked) + label:before,
+[type="radio"]:checked + label:before {
+  content: '';
+  position: absolute;
+  left:0; top: 2px;
+  width: 17px; height: 17px;
+  border: 1px solid fade(@black, 20%);
+  background-color: @greyl;
+  border-radius: 15px;
+}
+/* checked mark aspect */
+[type="radio"]:not(:checked) + label:after,
+[type="radio"]:checked + label:after {
+  content: '\f120';
+  font-family: 'ionicons';
+  position: absolute;
+  top: 5px; left: 2px;
+  font-size: 14.5px;
+  line-height: 0.8;
+  color: fade(@blue, 95%);
+  transition: all .2s;
+}
+/* checked mark aspect changes */
+[type="radio"]:not(:checked) + label:after {
+  opacity: 0;
+  transform: scale(0);
+}
+[type="radio"]:checked + label:after {
+  opacity: 1;
+  transform: scale(1);
+}
+/* disabled checkbox */
+[type="radio"]:disabled:not(:checked) + label:before,
+[type="radio"]:disabled:checked + label:before {
+  box-shadow: none;
+  border-color: #bbb;
+  background-color: @greyl;
+  opacity: 0.5;
+}
+[type="radio"]:disabled:checked + label:after {
+    color: fade(@black, 40%);
+}
+[type="radio"]:disabled + label {
+    color: fade(@black, 40%);
+}
+/* accessibility */
+[type="radio"]:checked:focus + label:before,
+[type="radio"]:not(:checked):focus + label:before {
+  border: 1px dotted @blue;
+}
+
+
+.sitebar-item label{
+    box-sizing: border-box;
+    padding: 0 0 0 45px !important;
+}
+
 /*
     ===========================
     ===========================
@@ -53,6 +127,10 @@ body {
     ===========================
     ===========================
 */
+/*remove stupid powered by Esri logo on map*/
+.esri-leaflet-logo {
+    display:none !important;
+}
 
 .legendSwatch {
     opacity: 0.6;
@@ -442,7 +520,9 @@ div.leaflet-top > .elevation {
     ===========================
     ===========================
 */
-
+input[type='radio']{
+    display: none;
+}
 .sidebar {
     min-height: 0 !important;
 }

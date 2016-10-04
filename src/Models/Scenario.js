@@ -147,7 +147,7 @@ var StreamEst;
                 configurable: true
             });
             return FDCTMScenario;
-        })();
+        }());
         Models.FDCTMScenario = FDCTMScenario;
         var FAScenario = (function () {
             function FAScenario() {
@@ -200,7 +200,7 @@ var StreamEst;
                 configurable: true
             });
             return FAScenario;
-        })();
+        }());
         Models.FAScenario = FAScenario;
         var PRMSScenario = (function () {
             function PRMSScenario() {
@@ -239,7 +239,7 @@ var StreamEst;
                 configurable: true
             });
             return PRMSScenario;
-        })();
+        }());
         Models.PRMSScenario = PRMSScenario; //end class
         (function (ScenarioType) {
             ScenarioType[ScenarioType["e_statistic"] = 1] = "e_statistic";

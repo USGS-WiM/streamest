@@ -43,7 +43,7 @@ var StreamEst;
                 return ts;
             };
             return TimeSeries;
-        })();
+        }());
         Models.TimeSeries = TimeSeries;
         var TimeSeriesObservation = (function () {
             function TimeSeriesObservation(d, v, c) {
@@ -58,7 +58,7 @@ var StreamEst;
                 return new TimeSeriesObservation(date, value, dc);
             };
             return TimeSeriesObservation;
-        })();
+        }());
         Models.TimeSeriesObservation = TimeSeriesObservation;
     })(Models = StreamEst.Models || (StreamEst.Models = {}));
 })(StreamEst || (StreamEst = {}));

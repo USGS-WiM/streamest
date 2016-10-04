@@ -399,7 +399,6 @@ module StreamEst.Controllers {
             }//end if
 
             this.reportTitle = 'StreamEst Report';
-            this.reportDate = new Date();
             this.selectedTabName = "studyarea";
 
             this.initMap()

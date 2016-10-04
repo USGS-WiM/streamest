@@ -26,7 +26,7 @@ var StreamEst;
                 this.lng = 0;
             }
             return MapPoint;
-        })();
+        }());
         var Center = (function () {
             //Constructor
             //-+-+-+-+-+-+-+-+-+-+-+-
@@ -36,7 +36,7 @@ var StreamEst;
                 this.zoom = zm;
             }
             return Center;
-        })();
+        }());
         var Layer = (function () {
             function Layer(nm, ul, ty, vis, op) {
                 if (op === void 0) { op = undefined; }
@@ -47,7 +47,7 @@ var StreamEst;
                 this.layerOptions = op;
             }
             return Layer;
-        })();
+        }());
         var MapDefault = (function () {
             function MapDefault(mxZm, mnZm, zmCtrl) {
                 if (mxZm === void 0) { mxZm = null; }
@@ -58,7 +58,7 @@ var StreamEst;
                 this.zoomControl = zmCtrl;
             }
             return MapDefault;
-        })();
+        }());
         var MapController = (function () {
             function MapController($scope, $compile, $analytics, $location, $stateParams, leafletBoundsHelper, leafletData, search, studyArea, exploration, eventManager, toaster) {
                 var _this = this;
@@ -812,7 +812,7 @@ var StreamEst;
             //-+-+-+-+-+-+-+-+-+-+-+-
             MapController.$inject = ['$scope', '$compile', '$analytics', '$location', '$stateParams', 'leafletBoundsHelpers', 'leafletData', 'WiM.Services.SearchAPIService', 'StreamEst.Services.StudyAreaService', 'StreamEst.Services.ExplorationService', 'WiM.Event.EventManager', 'toaster'];
             return MapController;
-        })(); //end class
+        }()); //end class
         angular.module('StreamEst.Controllers')
             .controller('StreamEst.Controllers.MapController', MapController);
     })(Controllers = StreamEst.Controllers || (StreamEst.Controllers = {}));

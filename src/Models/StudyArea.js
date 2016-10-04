@@ -43,7 +43,7 @@ var StreamEst;
                 configurable: true
             });
             return StudyArea;
-        })();
+        }());
         Models.StudyArea = StudyArea; //end class
         var SegmentStudyArea = (function () {
             function SegmentStudyArea(RiverName, segID) {
@@ -52,7 +52,6 @@ var StreamEst;
                 this.CreatedDate = new Date();
                 this.Disclaimers = {};
                 this.Scenarios = [];
-                this.Features = [];
                 this.status = StudyAreaStatus.e_empty;
             }
             Object.defineProperty(SegmentStudyArea.prototype, "studyAreaType", {
@@ -78,11 +77,11 @@ var StreamEst;
                 configurable: true
             });
             return SegmentStudyArea;
-        })();
+        }());
         Models.SegmentStudyArea = SegmentStudyArea; //end class
         (function (StudyAreaType) {
-            StudyAreaType[StudyAreaType["e_segment"] = 1] = "e_segment";
-            StudyAreaType[StudyAreaType["e_basin"] = 2] = "e_basin";
+            StudyAreaType[StudyAreaType["e_basin"] = 1] = "e_basin";
+            StudyAreaType[StudyAreaType["e_segment"] = 2] = "e_segment";
         })(Models.StudyAreaType || (Models.StudyAreaType = {}));
         var StudyAreaType = Models.StudyAreaType;
         (function (StudyAreaStatus) {

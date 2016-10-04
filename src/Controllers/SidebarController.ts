@@ -104,7 +104,7 @@ module StreamEst.Controllers {
             return null;//sa.Parameters;
         }
         private _isBuildingReport: boolean;
-        public isBuildingReport(): boolean {
+        public get isBuildingReport(): boolean {
             return this._isBuildingReport;
         }
        
@@ -140,17 +140,18 @@ module StreamEst.Controllers {
             return this.searchService.getLocations(term);
         }
         public loadSelectedScenarios() {
+            this.sm("Loading Scenarios. Please wait...", Models.NotificationType.e_wait, "Loading Scenarios", true, 151, 0);
             this.isLoadingScenarios = true;
-            var evnthandler =new WiM.Event.EventHandler<Services.StudyAreaEventArgs>((sender: any, e: Services.StudyAreaEventArgs) => {
+            var evnthandler = new WiM.Event.EventHandler<Services.StudyAreaEventArgs>((sender: any, e: Services.StudyAreaEventArgs) => {
                 this.isLoadingScenarios = false;
                 this.EventManager.UnSubscribeToEvent(Services.onStudyAreaLoadComplete, evnthandler);
                 this.setProcedureType(ProcedureType.REPORT);
                 this.clrm();
                 this.sm("Finished Loading Scenarios, continue by configuring the report and selecting continue.", Models.NotificationType.e_success, "Loading Scenarios");
-            })
-            this.EventManager.SubscribeToEvent(Services.onStudyAreaLoadComplete, evnthandler );
-            this.studyAreaService.loadScenarios();
-            this.sm("Loading Scenarios. Please wait...", Models.NotificationType.e_wait, "Loading Scenarios", true, 151, 0);
+            });
+
+            this.EventManager.SubscribeToEvent(Services.onStudyAreaLoadComplete, evnthandler);            
+            this.studyAreaService.loadScenarios();                
         }
         public setProcedureType(pType: ProcedureType) {    
             //console.log('in setProcedureType', this.selectedProcedure, pType, !this.canUpdateProcedure(pType));     
@@ -167,7 +168,7 @@ module StreamEst.Controllers {
             e.stopPropagation(); e.preventDefault();
             $("#sapi-searchTextBox").trigger($.Event("keyup", { "keyCode": 13 }));
         }
-        public StudyAreaContainsScenario(studyAreaType: Models.StudyAreaType, obj):boolean {
+        public StudyAreaContainsScenario(studyAreaType: Models.StudyAreaType, obj:any):boolean {
             var sa = this.studyAreaService.getStudyArea(studyAreaType);
             if (sa == null) return false;
             for (var i = 0; i < sa.Scenarios.length; i++) {
@@ -185,7 +186,6 @@ module StreamEst.Controllers {
                 this.studyAreaService.removeScenario(scenario);
             else
                 this.studyAreaService.addScenario(scenario);
-
         }
         public showEditableReport() {
             this.modalService.openModal(Services.SSModalType.e_report, {editable:true});
@@ -193,10 +193,11 @@ module StreamEst.Controllers {
         public generateReport() {   
             if (!this.verifySceneriosCanExecute()) return;
             if (this.studyAreaService.isBusy) return;
-
+            this._isBuildingReport = true;
             var evntHandler = new WiM.Event.EventHandler<Services.StudyAreaEventArgs>((sender: any, e: Services.StudyAreaEventArgs) => {                
                 this.modalService.openModal(Services.SSModalType.e_report);
                 this.EventManager.UnSubscribeToEvent(Services.onStudyAreaExcecuteComplete, evntHandler);
+                this._isBuildingReport = false;
             });
 
             this.EventManager.SubscribeToEvent(Services.onStudyAreaExcecuteComplete, evntHandler);  
@@ -207,7 +208,7 @@ module StreamEst.Controllers {
         public getPRMSRiverName(id: string): string {
             return this.studyAreaService.prmsNameLookup[id];
         }
-        public resetStudyArea(studyAreaType: Models.StudyAreaType, obj): boolean {
+        public resetStudyArea(studyAreaType: Models.StudyAreaType): boolean {
             var sa = this.studyAreaService.getStudyArea(studyAreaType);
             if (sa == null) return false;
             sa.Features.forEach((f) => {

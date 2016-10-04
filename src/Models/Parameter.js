@@ -35,7 +35,7 @@ var StreamEst;
                 this.value = val;
             } //end constructor
             return Parameter;
-        })();
+        }());
         Models.Parameter = Parameter; //end class
     })(Models = StreamEst.Models || (StreamEst.Models = {}));
 })(StreamEst || (StreamEst = {})); //end module   

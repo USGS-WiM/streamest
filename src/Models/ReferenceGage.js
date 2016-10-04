@@ -27,7 +27,7 @@ var StreamEst;
                 this.Name = name;
             } //end constructor 
             return ReferenceGage;
-        })();
+        }());
         Models.ReferenceGage = ReferenceGage; //end class
     })(Models = StreamEst.Models || (StreamEst.Models = {}));
 })(StreamEst || (StreamEst = {})); //end module  

@@ -57,7 +57,7 @@ var StreamEst;
             //-+-+-+-+-+-+-+-+-+-+-+-
             AboutController.$inject = ['$scope', '$modalInstance', 'StreamEst.Services.ModalService'];
             return AboutController;
-        })(); //end  class
+        }()); //end  class
         angular.module('StreamEst.Controllers')
             .controller('StreamEst.Controllers.AboutController', AboutController);
     })(Controllers = StreamEst.Controllers || (StreamEst.Controllers = {}));

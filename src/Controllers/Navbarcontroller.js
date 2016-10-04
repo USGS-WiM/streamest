@@ -69,7 +69,7 @@ var StreamEst;
             //-+-+-+-+-+-+-+-+-+-+-+-
             NavbarController.$inject = ['$scope', '$http', 'StreamEst.Services.ModalService'];
             return NavbarController;
-        })(WiM.Services.HTTPServiceBase); //end class
+        }(WiM.Services.HTTPServiceBase)); //end class
         angular.module('StreamEst.Controllers')
             .controller('StreamEst.Controllers.NavbarController', NavbarController);
     })(Controllers = StreamEst.Controllers || (StreamEst.Controllers = {}));

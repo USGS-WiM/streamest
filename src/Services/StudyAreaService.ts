@@ -248,10 +248,10 @@ module StreamEst.Services {
             var sa = this.studyAreas;
             if (Object.keys(sa).length === 0) return;
             for (var key in sa) {
-                if (sa[key].status != Models.StudyAreaStatus.e_initialized) return;
+                //if (sa[key].status > Models.StudyAreaStatus.e_initialized) continue;
                 if (sa[key].studyAreaType == Models.StudyAreaType.e_basin) this.loadParameters(<Models.IStatisticStudyArea>sa[key]);
                 if (sa[key].studyAreaType == Models.StudyAreaType.e_basin) this.loadReferenceGage(<Models.IStatisticStudyArea>sa[key]);
-                if (sa[key].studyAreaType == Models.StudyAreaType.e_segment && !this.isBusy) { sa[key].status = Models.StudyAreaStatus.e_ready; this.eventmanager.RaiseEvent(onStudyAreaLoadComplete, this, StudyAreaEventArgs.Empty); }
+                if (sa[key].studyAreaType == Models.StudyAreaType.e_segment) { sa[key].status = Models.StudyAreaStatus.e_ready; if(!this.isBusy) this.eventmanager.RaiseEvent(onStudyAreaLoadComplete, this, StudyAreaEventArgs.Empty); }
             };//next sa
 
         }

@@ -41,7 +41,7 @@ var StreamEst;
         } //end constructor
         config.$inject = ['$stateProvider', '$urlRouterProvider', '$locationProvider', '$logProvider'];
         return config;
-    })(); //end class
+    }()); //end class
     //class run {
     //    static $inject = ['StreamEst.Services.NotificationService'];
     //    constructor(private notificationService: Services.INotificationService) {

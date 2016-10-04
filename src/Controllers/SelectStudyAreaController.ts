@@ -77,7 +77,7 @@ module StreamEst.Controllers {
             //console.log("in about controller");
             for (var property in this.studyAreaService.studyAreas) {
                 if (this.studyAreaService.studyAreas.hasOwnProperty(property) && this.studyAreaService.studyAreas[property].status == Models.StudyAreaStatus.e_empty) {
-                    this.selectedStudyAreaType = property;
+                    this.selectedStudyAreaType = this.studyAreaService.studyAreas[property].studyAreaType;
                     break;
                 }//end if
             }//next property            

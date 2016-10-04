@@ -65,7 +65,7 @@ var StreamEst;
                 });
             };
             return ExplorationService;
-        })(WiM.Services.HTTPServiceBase); //end class
+        }(WiM.Services.HTTPServiceBase)); //end class
         factory.$inject = ['$http', '$q'];
         function factory($http, $q) {
             return new ExplorationService($http, $q);
