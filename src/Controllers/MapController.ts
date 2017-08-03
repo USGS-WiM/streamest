@@ -638,8 +638,8 @@ module StreamEst.Controllers {
                                 results.features.forEach((queryResult) => {
                                     var prmsscen = sa.Scenarios[0];
                                     if (queryResult.geometry.type === 'LineString') {
-                                        prmsscen.SelectedSegmentList.push({ SegmentID: queryResult.id, RiverID: queryResult.layerId, feature: queryResult.geometry })
-                                        this.addGeoJSON("PRMSSeg_" + queryResult.layerId + "." + queryResult.id, queryResult.geometry);
+                                        prmsscen.SelectedSegmentList.push({ SegmentID: queryResult.properties.m_segID, RiverID: queryResult.layerId, feature: queryResult.geometry })
+                                        this.addGeoJSON("PRMSSeg_" + queryResult.layerId + "." + queryResult.properties.m_segID, queryResult.geometry);
                                         prmsscen.status = Models.ScenarioStatus.e_loaded;
                                     }//end if                                                    
                                 });//next feature
