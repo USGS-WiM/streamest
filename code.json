@@ -19,7 +19,7 @@
 
     "homepageURL": "https://wim.usgs.gov",
     "downloadURL": "https://github.com/USGS-WiM/StreamEst/archive/master.zip",
-    "disclaimerURL": "https://github.com/USGS-WiM/StreamEst/blob/master/LICENSE.md",
+    "disclaimerURL": "https://github.com/USGS-WiM/StreamEst/blob/master/DISCLAIMER.md",
     "repositoryUrl": "https://github.com/USGS-WiM/StreamEst",
     "vcs": "git",
 
