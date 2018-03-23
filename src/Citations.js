@@ -23,4 +23,10 @@
         "imgeSrc": "https://pubs.er.usgs.gov/imgsizer/_?u=http%3A%2F%2Fpubs.usgs.gov%2Fsir%2F2015%2F5129%2Fcoverthb.jpg&w=200&s=GAkfdH6PtXMvwYppurDCCfpfxbI",
         "src": "https://pubs.er.usgs.gov/publication/sir20155129"
     }
+     {
+        "title": "Simulation of daily streamflow for 12 river basins in western Iowa using the Precipitation-Runoff Modeling System",
+        "author": "Daniel E. Christiansen, Adel E. Haj, and John C. Risley",
+        "imgeSrc": "https://pubs.er.usgs.gov/imgsizer/_?u=https%3A%2F%2Fpubs.usgs.gov%2Fsir%2F2017%2F5091%2Fcoverthb.jpg&w=200&s=ynrcZm-OvEq17K2AgCkVNaSFRMw",
+        "src": "https://pubs.er.usgs.gov/publication/sir20175091"
+    }
 ]
