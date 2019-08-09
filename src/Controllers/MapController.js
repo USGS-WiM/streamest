@@ -540,8 +540,8 @@ var StreamEst;
                                 results.features.forEach(function (queryResult) {
                                     var prmsscen = sa.Scenarios[0];
                                     if (queryResult.geometry.type === 'LineString') {
-                                        prmsscen.SelectedSegmentList.push({ SegmentID: queryResult.properties.m_segID, RiverID: queryResult.layerId, feature: queryResult.geometry });
-                                        _this.addGeoJSON("PRMSSeg_" + queryResult.layerId + "." + queryResult.properties.m_segID, queryResult.geometry);
+                                        prmsscen.SelectedSegmentList.push({ SegmentID: queryResult.properties.GRID_CODE, RiverID: queryResult.layerId, feature: queryResult.geometry });
+                                        _this.addGeoJSON("PRMSSeg_" + queryResult.layerId + "." + queryResult.properties.GRID_CODE, queryResult.geometry);
                                         prmsscen.status = StreamEst.Models.ScenarioStatus.e_loaded;
                                     } //end if                                                    
                                 }); //next feature
