@@ -6,8 +6,8 @@ configuration.baseurls =
     'StreamStats': 'http://streamstats09.cr.usgs.gov',
     'StreamStatsServices':'http://ssdev.cr.usgs.gov',
     'NSS': 'http://toad.wim.usgs.gov/nssservices',
-    'SearchAPI': 'http://txpub.usgs.gov/DSS/search_api/1.1/dataService/dataService.ashx',
-    'GISserver': 'http://gis.wim.usgs.gov',
+    'SearchAPI': 'https://txdata.usgs.gov/search_api/1.1/services.ashx/search',
+    'GISserver': 'https://gis.wim.usgs.gov',
     'NodeServer': 'http://nss.wim.usgs.gov',
     'NationalMapRasterServices': 'http://raster.nationalmap.gov/arcgis/rest/services'
 }
@@ -183,13 +183,13 @@ configuration.regions = {
     IA:{
         'sgrid': {
             "name": "Stream grid",
-            "url": configuration.baseurls['StreamStats'] + "/arcgis/rest/services/ia_ss/MapServer",
+            "url": "https://gis.streamstats.usgs.gov/arcgis/rest/services/StreamStats/stateServices/MapServer/",
             "type": 'agsDynamic',
             "visible": true,
             "format": "png8",
             "f":"image",
             "layerOptions": {
-                "layers":[2],
+                "layers":[41],
                 "opacity": 1
             }
         },
