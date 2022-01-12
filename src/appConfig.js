@@ -1,26 +1,26 @@
-﻿var configuration = {}
+﻿var configuration = {};
 configuration.baseurls =
 {   
-    'Service': 'http://services.wim.usgs.gov',
-    'NWISurl': 'http://waterservices.usgs.gov/nwis',
-    'StreamStats': 'http://streamstats09.cr.usgs.gov',
-    'StreamStatsServices':'http://ssdev.cr.usgs.gov',
-    'NSS': 'http://toad.wim.usgs.gov/nssservices',
+    'Service': 'https://services.wim.usgs.gov',
+    'NWISurl': 'https://waterservices.usgs.gov/nwis',
+    'StreamStats': 'https://gis.streamstats.usgs.gov',
+    'StreamStatsServices':'https://test.streamstats.usgs.gov',
+    'NSS': 'https://streamstats.usgs.gov/nssservices',
     'SearchAPI': 'https://txdata.usgs.gov/search_api/1.1/services.ashx/search',
     'GISserver': 'https://gis.wim.usgs.gov',
-    'NodeServer': 'http://nss.wim.usgs.gov',
-    'NationalMapRasterServices': 'http://raster.nationalmap.gov/arcgis/rest/services'
-}
+    'NodeServer': 'https://nss.wim.usgs.gov',
+    'NationalMapRasterServices': 'https://raster.nationalmap.gov/arcgis/rest/services'
+};
 
 //override streamstats services URL if on production
 if (window.location.origin == 'http://streamstatsags.cr.usgs.gov') configuration.baseurls.StreamStatsServices = 'http://streamstatsags.cr.usgs.gov';
 
 configuration.queryparams =
 {
-    "NWISsite": '/site/?format=mapper,1.0&stateCd={0}&siteType=GL,OC,OC-CO,ES,LK,ST,ST-CA,ST-DCH,ST-TS&hasDataTypeCd=iv',
-    'KrigService': '/krigservice/krig?state={0}&xlocation={1}&ylocation={2}&sr={3}',
+    'NWISsite': '/site/?format=mapper,1.0&stateCd={0}&siteType=GL,OC,OC-CO,ES,LK,ST,ST-CA,ST-DCH,ST-TS&hasDataTypeCd=iv',
+    'KrigService': '/krigservices/krig?region={0}&x={1}&y={2}&crs={3}&count=20',
     'FARefGage': '/arcgis/rest/services/IowaStreamEst/FlowAnywhere/MapServer/1/query?geometry={0}&geometryType=esriGeometryPoint&inSR={1}&spatialRel=esriSpatialRelIntersects&outFields=regions_local.Region_Agg,reference_gages.site_id,reference_gages.site_name,reference_gages.da_gis_mi2,reference_gages.lat_dd_nad,reference_gages.long_dd_na&returnGeometry=false&returnIdsOnly=false&returnCountOnly=false&returnZ=false&returnM=false&returnDistinctValues=false&f=pjson',
-    'RegressionScenarios': '/regressionservice/models/{0}/estimate?state=IA',
+    'RegressionScenarios': '/regressionservices/models/{0}/estimate?state=IA',
     'SSdelineation': '/streamstatsservices/watershed.{0}?rcode={1}&xlocation={2}&ylocation={3}&crs={4}&simplify=true&includeparameters=false&includeflowtypes=false&includefeatures=true',
     'SSwatershedByWorkspace': '/streamstatsservices/watershed.{0}?rcode={1}&workspaceID={2}&crs={3}&simplify=true&includeparameters=false&includeflowtypes=false&includefeatures=true',
     'SSeditBasin': '/streamstatsservices/watershed/edit.{0}?rcode={1}&workspaceID={2}&crs={3}&simplify=true&includeparameters=false&includeflowtypes=false&includefeatures=true',
@@ -103,7 +103,7 @@ configuration.basemaps =
     },
     "MapquestOAM": {
         "name": "Mapquest Areal",
-        "url": "http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.png",
+        "url": "https://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.png",
         "visible": false,
         "type": 'xyz',
         "layerOptions": {
@@ -121,7 +121,7 @@ configuration.basemaps =
             "layers": [
                 {
                     "name": "tiles",
-                    "url": "http://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg",
+                    "url": "https://{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg",
                     "type": 'xyz',
                     "layerOptions": {
                         "maxZoom": 19,
@@ -130,7 +130,7 @@ configuration.basemaps =
                 },
                 {
                     "name": "roads",
-                    "url": "http://{s}.mqcdn.com/tiles/1.0.0/hyb/{z}/{x}/{y}.png",
+                    "url": "https://{s}.mqcdn.com/tiles/1.0.0/hyb/{z}/{x}/{y}.png",
                     "type": 'xyz',
                     "layerOptions": {
                         "maxZoom": 19,
@@ -143,7 +143,7 @@ configuration.basemaps =
     },
     "mapquestOSM": {
         "name": "Mapquest Streets",
-        "url": "http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png",
+        "url": "https://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png",
         "visible": false,
         "type": 'xyz',
         "layerOptions": {
@@ -157,7 +157,7 @@ configuration.basemaps =
 configuration.overlayedLayers = {
     "SSLayer": {
         "name": "Streamgage Layers",
-        "url": configuration.baseurls['StreamStats'] + "/arcgis/rest/services/ss_studyAreas_prod/MapServer",
+        "url": configuration.baseurls['StreamStats'] + "/arcgis/rest/services/StreamStats/nationalLayers/MapServer",
         "type": 'agsDynamic',
         "visible": true,
         "layerOptions": {
@@ -183,7 +183,7 @@ configuration.regions = {
     IA:{
         'sgrid': {
             "name": "Stream grid",
-            "url": "https://gis.streamstats.usgs.gov/arcgis/rest/services/StreamStats/stateServices/MapServer/",
+            "url": configuration.baseurls['StreamStats'] + "/arcgis/rest/services/StreamStats/stateServices/MapServer",
             "type": 'agsDynamic',
             "visible": true,
             "format": "png8",
@@ -195,7 +195,7 @@ configuration.regions = {
         },
         'FLA': {
             "name": "Flow Anywhere Model",
-            "url": 'http://gis.wim.usgs.gov/arcgis/rest/services/IowaStreamEst/FlowAnywhere/MapServer',
+            "url": 'https://gis.wim.usgs.gov/arcgis/rest/services/IowaStreamEst/FlowAnywhere/MapServer',
             "type": 'agsDynamic',
             "visible": true,
             "layerOptions": {
@@ -204,7 +204,7 @@ configuration.regions = {
         },
         'FDCTM': {
             "name": "Flow Duration Curve Transfer Model",
-            "url": 'http://gis.wim.usgs.gov/arcgis/rest/services/IowaStreamEst/FDCTM/MapServer',
+            "url": 'https://gis.wim.usgs.gov/arcgis/rest/services/IowaStreamEst/FDCTM/MapServer',
             "type": 'agsDynamic',
             "visible": true,
             "layerOptions": {
@@ -213,7 +213,7 @@ configuration.regions = {
         },
         'PRMS': {
             "name": "PRMS",
-            "url": 'http://gis.wim.usgs.gov/arcgis/rest/services/IowaStreamEst/PRMS/MapServer',
+            "url": 'https://gis.wim.usgs.gov/arcgis/rest/services/IowaStreamEst/PRMS/MapServer',
             "type": 'agsDynamic',
             "visible": true,
             "layerOptions": {

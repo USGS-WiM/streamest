@@ -411,7 +411,7 @@ module StreamEst.Services {
                 if (!scenario.hasOwnProperty("ReferenceGageList") || !scenario.hasOwnProperty("SelectedReferenceGage")) return;
                 switch (scenario.code) {
                     case "FDCTM":
-                        url = configuration.baseurls['Service'];
+                        url = configuration.baseurls['StreamStatsServices'];
                         url = url + configuration.queryparams['KrigService'].format(sa.RegionID, sa.Pourpoint.Longitude, sa.Pourpoint.Latitude, sa.Pourpoint.crs);
                         break;
                     case "FLA":

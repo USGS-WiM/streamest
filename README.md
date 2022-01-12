@@ -7,7 +7,7 @@ StreamEst Client Application.
 ### Prerequisites
 
 ##### required software
-[node.js](http://nodejs.org)  
+[node.js](http://nodejs.org)  [Version 7.8.0]
 [git](https://git-scm.com/)  
 [typescript 1.7] (https://github.com/Microsoft/TypeScript)
 
@@ -26,7 +26,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 https://help.github.com/articles/cloning-a-repository/
 
-This will install the required dependencies to the project
+This will install the required dependencies to the project. Works best when using an administrator command prompt. If given a choice after entering ```bower install```, select 10 (angular#1.x which resolves to 1.3.20 and is required by angular-leaflet-directive#0.10.0).
 
 Inside of your project folder (after git fork and clone):
 ```bash
@@ -37,7 +37,14 @@ typings install
 [upgrade from tsd to typings] (https://github.com/DefinitelyTyped/tsd/issues/269)
 
 
-## Building a release
+## Building and Testing
+
+### To run the client locally
+```
+gulp watch
+```
+
+### To build a production version of the app:
 
 **Commit, Sync, and Merge Pull Request on any current project changes.  The steps below require a clean git status.**
 
